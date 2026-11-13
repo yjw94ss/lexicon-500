@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lexicon 500 · 进阶英语词汇学习项目</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .perspective-1000 { perspective: 1000px; }
+    .preserve-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .card-transition { transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      70% { transform: scale(1.15); opacity: 0; }
+      100% { transform: scale(1.15); opacity: 0; }
+    }
+    .speaking-pulse::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 9999px;
+      border: 2px solid #4f46e5;
+      animation: pulse-ring 1.1s infinite;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- Top Navigation & Stats -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 py-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-sm shadow-sm">
+            500
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Lexicon 500</h1>
+            <p class="text-xs text-slate-500">C1–C2 进阶英语核心词库</p>
+          </div>
+        </div>
+
+        <!-- Nav Tabs -->
+        <nav class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl overflow-x-auto no-scrollbar max-w-full" aria-label="主导航">
+          <button data-tab="flashcards" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-white text-indigo-600 shadow-sm">
+            卡片学习
+          </button>
+          <button data-tab="bank" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-slate-600 hover:text-slate-900">
+            500词库
+          </button>
+          <button data-tab="quiz" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-slate-600 hover:text-slate-900">
+            随堂测验
+          </button>
+          <button data-tab="stats" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-slate-600 hover:text-slate-900">
+            进度统计
+          </button>
+        </nav>
+
+        <!-- Quick Progress Pill -->
+        <div class="hidden md:flex items-center gap-3 text-xs">
+          <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-semibold border border-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>已掌握 <span id="hdrMastered">0</span>/500</span>
+          </div>
+          <div class="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full font-semibold border border-amber-200">
+            <span>★ 收藏 <span id="hdrStarred">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thin overall progress bar -->
+      <div class="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-0.5">
+        <div id="hdrProgressBar" class="h-full bg-indigo-600 transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- ==================== TAB 1: FLASHCARDS ==================== -->
+    <section id="view-flashcards" class="space-y-5">
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="fcCategory" class="text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">全部分类 (500词)</option>
+          </select>
+          <select id="fcUnit" class="text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">全部单元 (Unit 1–10)</option>
+          </select>
+          <select id="fcStatus" class="text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">全部状态</option>
+            <option value="unlearned">未学习</option>
+            <option value="learning">模糊/学习中</option>
+            <option value="mastered">已掌握</option>
+            <option value="starred">仅看收藏 ★</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="fcShuffleBtn" class="px-3 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition">
+            🔀 随机排序
+          </button>
+          <button id="fcAutoSpeakBtn" class="px-3 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition">
+            🔊 自动发音: <span id="autoSpeakLabel">关</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Flashcard Stage -->
+      <div id="fcEmptyState" class="hidden bg-white rounded-2xl border border-slate-200 p-10 text-center">
+        <p class="text-slate-500 text-sm mb-3">当前筛选条件下没有匹配的单词。</p>
+        <button id="fcResetFilterBtn" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition">
+          重置筛选条件
+        </button>
+      </div>
+
+      <div id="fcStage" class="max-w-2xl mx-auto space-y-4">
+        <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+          <span>当前队列：<strong id="fcCounter" class="text-slate-800">1 / 500</strong></span>
+          <span class="hidden sm:inline">快捷键：空格翻面 · 1/2/3 标记 · S 发音 · ←/→ 切换</span>
+        </div>
+
+        <!-- 3D Flip Card -->
+        <div class="perspective-1000">
+          <div id="flashcard" class="relative w-full min-h-[340px] sm:min-h-[370px] cursor-pointer preserve-3d card-transition">
+            <!-- Front -->
+            <div class="absolute inset-0 backface-hidden bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-8 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span id="fcCatBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">学术思辨</span>
+                  <span id="fcUnitBadge" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Unit 1</span>
+                  <span id="fcStatusBadge" class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500">未学习</span>
+                </div>
+                <button id="fcStarBtn" type="button" class="w-9 h-9 rounded-full flex items-center justify-center text-lg hover:bg-amber-50 transition" title="收藏单词">
+                  ☆
+                </button>
+              </div>
+
+              <div class="text-center my-auto py-4">
+                <div id="fcWord" class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 break-words">ubiquitous</div>
+                <div class="flex items-center justify-center gap-3 text-slate-500">
+                  <span id="fcPos" class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">adj.</span>
+                  <span id="fcIpa" class="text-sm sm:text-base font-mono">/juːˈbɪk.wɪ.təs/</span>
+                  <button id="fcSpeakBtn" type="button" class="relative w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition" title="朗读单词 (S)">
+                    🔊
+                  </button>
+                </div>
+              </div>
+
+              <div class="text-center text-xs text-slate-400 font-medium">
+                点击卡片或按空格键查看释义与例句
+              </div>
+            </div>
+
+            <!-- Back -->
+            <div class="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-3xl border-2 border-indigo-100 shadow-md p-6 sm:p-8 flex flex-col justify-between overflow-y-auto">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-baseline gap-2.5">
+                  <span id="fcBackWord" class="text-xl sm:text-2xl font-bold text-slate-900">ubiquitous</span>
+                  <span id="fcBackPos" class="text-xs font-semibold text-indigo-600">adj.</span>
+                  <span id="fcBackIpa" class="text-xs font-mono text-slate-400">/juːˈbɪk.wɪ.təs/</span>
+                </div>
+                <button id="fcBackSpeakBtn" type="button" class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center text-sm transition" title="朗读例句">
+                  🔊
+                </button>
+              </div>
+
+              <div class="my-auto py-3 space-y-4">
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">中文释义</div>
+                  <div id="fcCn" class="text-lg sm:text-xl font-bold text-slate-900">无所不在的，普遍存在的</div>
+                </div>
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">英文释义</div>
+                  <div id="fcEn" class="text-sm text-slate-600 leading-relaxed">Present, appearing, or found everywhere.</div>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-semibold text-indigo-600">地道例句</span>
+                    <button id="fcSpeakExBtn" type="button" class="text-xs font-medium text-indigo-600 hover:underline">🔊 朗读例句</button>
+                  </div>
+                  <p id="fcEx" class="text-sm sm:text-base text-slate-800 font-medium leading-relaxed mb-1.5"></p>
+                  <p id="fcExCn" class="text-xs sm:text-sm text-slate-500"></p>
+                </div>
+              </div>
+
+              <div class="text-center text-xs text-slate-400">
+                选择下方掌握程度继续学习
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="grid grid-cols-5 gap-2 sm:gap-3 pt-1">
+          <button id="fcPrevBtn" class="col-span-1 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition">
+            ← 上一个
+          </button>
+          <button data-rate="unlearned" class="rate-btn col-span-1 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-xs sm:text-sm hover:bg-rose-100 transition">
+            1 · 不认识
+          </button>
+          <button data-rate="learning" class="rate-btn col-span-1 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 font-semibold text-xs sm:text-sm hover:bg-amber-100 transition">
+            2 · 模糊
+          </button>
+          <button data-rate="mastered" class="rate-btn col-span-1 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold text-xs sm:text-sm hover:bg-emerald-100 transition">
+            3 · 掌握了
+          </button>
+          <button id="fcNextBtn" class="col-span-1 py-3 rounded-2xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition shadow-sm">
+            下一个 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: WORD BANK ==================== -->
+    <section id="view-bank" class="hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative flex-1 min-w-[220px]">
+            <input id="bankSearch" type="text" placeholder="搜索英文单词、中文释义或例句..." class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+          </div>
+          <select id="bankCategory" class="text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700">
+            <option value="all">全部分类</option>
+          </select>
+          <select id="bankUnit" class="text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700">
+            <option value="all">全部单元</option>
+          </select>
+          <select id="bankStatus" class="text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-700">
+            <option value="all">全部状态</option>
+            <option value="unlearned">未学习</option>
+            <option value="learning">学习中</option>
+            <option value="mastered">已掌握</option>
+            <option value="starred">已收藏 ★</option>
+          </select>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500">
+          <span>共筛选出 <strong id="bankCount" class="text-slate-800">500</strong> 个进阶单词</span>
+          <div class="flex items-center gap-2">
+            <button id="bankPrevPage" class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40">上一页</button>
+            <span id="bankPageInfo">第 1 / 10 页</span>
+            <button id="bankNextPage" class="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40">下一页</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="bankList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- ==================== TAB 3: QUIZ ==================== -->
+    <section id="view-quiz" class="hidden max-w-2xl mx-auto space-y-5">
+      <!-- Quiz Setup -->
+      <div id="quizSetup" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">随堂词汇测验</h2>
+          <p class="text-sm text-slate-500 mt-1">从 500 个进阶词库中抽取题目，巩固记忆并自动更新掌握状态。</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">出题范围</label>
+            <select id="quizScope" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+              <option value="all">全部 500 词</option>
+              <option value="unlearned_learning">优先未掌握单词</option>
+              <option value="starred">仅收藏夹单词 ★</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">题型模式</label>
+            <select id="quizMode" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+              <option value="en2cn">英译中（看英文选中文）</option>
+              <option value="cn2en">中译英（看中文选英文）</option>
+              <option value="cloze">例句填空（语境选词）</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">题目数量</label>
+            <select id="quizCount" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+              <option value="10">10 题（快速热身）</option>
+              <option value="20" selected>20 题（标准测验）</option>
+              <option value="30">30 题（深度挑战）</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">分类限定</label>
+            <select id="quizCategory" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+              <option value="all">全部分类</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="startQuizBtn" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition">
+          开始测验
+        </button>
+      </div>
+
+      <!-- Quiz Active -->
+      <div id="quizActive" class="hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+          <span>题目 <span id="qIndex">1</span> / <span id="qTotal">20</span></span>
+          <span>当前得分：<span id="qScore" class="text-indigo-600">0</span></span>
+        </div>
+        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div id="qProgress" class="h-full bg-indigo-600 transition-all duration-300" style="width: 5%"></div>
+        </div>
+
+        <div class="py-2">
+          <div class="flex items-center justify-between mb-2">
+            <span id="qTypeLabel" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">英译中</span>
+            <button id="qSpeakBtn" class="text-xs font-medium text-indigo-600 hover:underline">🔊 朗读</button>
+          </div>
+          <div id="qPrompt" class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug"></div>
+          <div id="qSubPrompt" class="text-xs sm:text-sm text-slate-500 mt-1.5"></div>
+        </div>
+
+        <div id="qOptions" class="space-y-2.5"></div>
+
+        <div id="qFeedback" class="hidden rounded-2xl p-4 text-sm border">
+          <div id="qFeedbackTitle" class="font-bold mb-1"></div>
+          <div id="qFeedbackBody" class="text-xs sm:text-sm opacity-90"></div>
+          <button id="qNextBtn" class="mt-3 w-full py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition">
+            下一题 →
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz Result -->
+      <div id="quizResult" class="hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="text-center space-y-2">
+          <div class="text-4xl font-extrabold text-indigo-600" id="qrScoreText">18 / 20</div>
+          <div class="text-sm font-semibold text-slate-700" id="qrAccuracyText">正确率 90%</div>
+        </div>
+        <div id="qrReviewList" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+        <div class="flex gap-3">
+          <button id="qrRetryBtn" class="flex-1 py-3 rounded-2xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition">再来一组</button>
+          <button id="qrBackBtn" class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition">返回设置</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: STATS & EXPORT ==================== -->
+    <section id="view-stats" class="hidden space-y-5">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs text-slate-500 font-medium">词库总量</div>
+          <div class="text-2xl font-extrabold text-slate-900 mt-1">500</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs text-emerald-600 font-medium">已掌握</div>
+          <div id="stMastered" class="text-2xl font-extrabold text-emerald-600 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs text-amber-600 font-medium">模糊/学习中</div>
+          <div id="stLearning" class="text-2xl font-extrabold text-amber-600 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <div class="text-xs text-indigo-600 font-medium">收藏单词</div>
+          <div id="stStarred" class="text-2xl font-extrabold text-indigo-600 mt-1">0</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold text-slate-900">分类掌握度</h3>
+          <div id="stCatBars" class="space-y-3"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold text-slate-900">单元掌握度 (Unit 1–10)</h3>
+          <div id="stUnitBars" class="space-y-2.5"></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">数据导出与管理</h3>
+          <p class="text-xs text-slate-500 mt-0.5">学习进度自动保存在本地浏览器中，可导出 CSV 词表用于打印或导入 Anki。</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="exportCsvBtn" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs sm:text-sm font-semibold hover:bg-indigo-700 transition">
+            ⬇ 导出全部 500 词 (CSV)
+          </button>
+          <button id="exportStarredBtn" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs sm:text-sm font-semibold hover:bg-slate-50 transition">
+            ★ 仅导出收藏/未掌握
+          </button>
+          <button id="resetProgressBtn" class="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs sm:text-sm font-semibold hover:bg-rose-100 transition">
+            重置学习进度
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Word Detail Modal -->
+  <div id="wordModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 id="mWord" class="text-2xl font-extrabold text-slate-900"></h3>
+            <span id="mPos" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700"></span>
+          </div>
+          <div class="flex items-center gap-2 mt-1 text-sm text-slate-500 font-mono">
+            <span id="mIpa"></span>
+            <button id="mSpeakBtn" class="text-indigo-600 hover:underline text-xs font-sans font-semibold">🔊 朗读</button>
+          </div>
+        </div>
+        <button id="mCloseBtn" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">✕</button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <div>
+          <span class="text-xs font-semibold text-slate-400">中文释义</span>
+          <p id="mCn" class="text-base font-bold text-slate-900 mt-0.5"></p>
+        </div>
+        <div>
+          <span class="text-xs font-semibold text-slate-400">英文释义</span>
+          <p id="mEn" class="text-slate-600 mt-0.5"></p>
+        </div>
+        <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
+          <p id="mEx" class="font-medium text-slate-800"></p>
+          <p id="mExCn" class="text-xs text-slate-500 mt-1"></p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+        <button id="mStarBtn" class="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-amber-50"></button>
+        <div class="flex gap-2">
+          <button data-mrate="learning" class="m-rate-btn px-3 py-2 rounded-xl bg-amber-50 text-amber-700 text-xs font-semibold hover:bg-amber-100">标记模糊</button>
+          <button data-mrate="mastered" class="m-rate-btn px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">标记掌握</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Reset Modal -->
+  <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-900">确认重置学习进度？</h3>
+      <p class="text-sm text-slate-500">这将清除所有已掌握、模糊标记和收藏记录，操作不可撤销。</p>
+      <div class="flex gap-2 pt-2">
+        <button id="cancelResetBtn" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50">取消</button>
+        <button id="confirmResetBtn" class="flex-1 py-2.5 rounded-xl bg-rose-600 text-sm font-semibold text-white hover:bg-rose-700">确认重置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-lg"></div>
+
+<script>
+const CATEGORIES = {
+  academic: { name: '学术与思辨', color: 'bg-indigo-50 text-indigo-700' },
+  business: { name: '商业与职场', color: 'bg-sky-50 text-sky-700' },
+  literature: { name: '文学与情感', color: 'bg-purple-50 text-purple-700' },
+  society: { name: '社会与法政', color: 'bg-emerald-50 text-emerald-700' },
+  science: { name: '科技与创新', color: 'bg-cyan-50 text-cyan-700' },
+  character: { name: '性格与行为', color: 'bg-amber-50 text-amber-700' }
+};
+
+// Format: [word, ipa, pos, cn, en, ex, exCn, category]
+const RAW_WORDS = [
+  // ==================== 1. ACADEMIC & LOGIC (85) ====================
+  ["paradigm","/ˈpær.ə.daɪm/","n.","范式，典范","A typical example, pattern, or model of something.","AI has triggered a paradigm shift in software engineering.","人工智能引发了软件工程领域的范式转变。","academic"],
+  ["empirical","/ɪmˈpɪr.ɪ.kəl/","adj.","实证的，经验主义的","Based on observation or experience rather than pure theory.","The researchers provided empirical evidence to support their claim.","研究人员提供了实证依据来支持他们的论点。","academic"],
+  ["corroborate","/kəˈrɒb.ə.reɪt/","v.","证实，确证","To confirm or give support to a statement, theory, or finding.","Witness accounts corroborated the detective's timeline.","目击者的陈述证实了侦探的时间线。","academic"],
+  ["dichotomy","/daɪˈkɒt.ə.mi/","n.","二分法，对立","A division or contrast between two things that are completely different.","The book challenges the false dichotomy between art and science.","这本书挑战了艺术与科学之间虚假的二元对立。","academic"],
+  ["hypothesis","/haɪˈpɒθ.ə.sɪs/","n.","假说，假设","A proposed explanation made on the basis of limited evidence.","We designed an experiment to test our initial hypothesis.","我们设计了一项实验来检验最初的假说。","academic"],
+  ["ambiguity","/ˌæm.bɪˈɡjuː.ə.ti/","n.","模棱两可，歧义","The quality of being open to more than one interpretation.","Legal contracts should be drafted to minimize ambiguity.","法律合同的起草应尽量减少歧义。","academic"],
+  ["extrapolate","/ɪkˈstræp.ə.leɪt/","v.","推断，外推","To extend the application of a method or conclusion to an unknown situation.","You cannot safely extrapolate long-term trends from two days of data.","你不能仅凭两天的数据就贸然推断长期趋势。","academic"],
+  ["synthesis","/ˈsɪn.θə.sɪs/","n.","综合，合成","The combination of ideas to form a theory or system.","Her essay is a brilliant synthesis of history and economics.","她的论文将历史学与经济学精妙地结合在了一起。","academic"],
+  ["inference","/ˈɪn.fər.əns/","n.","推论，推理","A conclusion reached on the basis of evidence and reasoning.","Statistical inference allows us to generalize from a sample.","统计推论使我们能够从样本推及整体。","academic"],
+  ["premise","/ˈprem.ɪs/","n.","前提，假设","A previous statement or proposition from which another is inferred.","The argument rests on a flawed premise.","这个论点建立在一个有缺陷的前提之上。","academic"],
+  ["refute","/rɪˈfjuːt/","v.","反驳，驳斥","To prove a statement or theory to be wrong or false.","New satellite data refuted the earlier climate model.","新的卫星数据反驳了早期的气候模型。","academic"],
+  ["scrutinize","/ˈskruː.tɪ.naɪz/","v.","仔细审查，细看","To examine or inspect closely and thoroughly.","Auditors scrutinized every line of the financial report.","审计人员仔细审查了财务报告的每一行。","academic"],
+  ["substantiate","/səbˈstæn.ʃi.eɪt/","v.","证实，提供证据支持","To provide evidence to support or prove the truth of.","He failed to substantiate his allegations with hard data.","他未能用确凿的数据证实自己的指控。","academic"],
+  ["tentative","/ˈten.tə.tɪv/","adj.","暂定的，试探性的","Not certain or fixed; provisional.","We reached a tentative agreement pending final review.","在最终审查前，我们达成了暂定协议。","academic"],
+  ["verisimilitude","/ˌver.ɪ.sɪˈmɪl.ɪ.tjuːd/","n.","逼真，似真性","The appearance of being true or real.","Historical accuracy adds verisimilitude to the novel.","历史准确性为这部小说增添了真实感。","academic"],
+  ["axiomatic","/ˌæk.si.əˈmæt.ɪk/","adj.","不言自明的，公理的","Self-evident or unquestionable.","In this field, data privacy is treated as axiomatic.","在这个领域，数据隐私被视为不言自明的原则。","academic"],
+  ["nuance","/ˈnjuː.ɑːns/","n.","细微差别","A subtle difference in or shade of meaning, expression, or sound.","Good translation captures the nuances of the original text.","优秀的翻译能捕捉到原文的细微差别。","academic"],
+  ["paradox","/ˈpær.ə.dɒks/","n.","悖论，自相矛盾的话","A seemingly absurd or contradictory statement that may prove true.","The paradox of choice shows that too many options reduce satisfaction.","选择悖论表明，选项过多反而会降低满意度。","academic"],
+  ["postulate","/ˈpɒs.tʃə.leɪt/","v.","假定，假设","To suggest or assume the existence, fact, or truth of something.","Einstein postulated that the speed of light is constant.","爱因斯坦假设光速是恒定不变的。","academic"],
+  ["rudimentary","/ˌruː.dɪˈmen.tər.i/","adj.","基础的，初步的","Involving or limited to basic principles.","He has only a rudimentary grasp of calculus.","他对微积分只有初步的了解。","academic"],
+  ["seminal","/ˈsem.ɪ.nəl/","adj.","开创性的，有深远影响的","Strongly influencing later developments.","She published a seminal paper on neural networks in 2012.","她在2012年发表了一篇关于神经网络的开创性论文。","academic"],
+  ["tautology","/tɔːˈtɒl.ə.dʒi/","n.","同义反复，赘述","The saying of the same thing twice in different words.","'Free gift' is a common tautology in advertising.","“免费赠品”是广告中常见的同义反复。","academic"],
+  ["ubiquitous","/juːˈbɪk.wɪ.təs/","adj.","无所不在的，普遍存在的","Present, appearing, or found everywhere.","Smartphones have become ubiquitous in modern daily life.","智能手机在现代日常生活中已变得无处不在。","academic"],
+  ["abstract","/ˈæb.strækt/","adj.","抽象的；n. 摘要","Existing in thought or as an idea but not having a physical existence.","The abstract summarizes the paper's methodology and findings.","摘要总结了该论文的研究方法与发现。","academic"],
+  ["anachronism","/əˈnæk.rə.nɪ.zəm/","n.","时代错误","A thing belonging or appropriate to a period other than that in which it exists.","A wristwatch in a medieval film is a glaring anachronism.","中世纪电影里出现手表是一个明显的时代错误。","academic"],
+  ["analogous","/əˈnæl.ə.ɡəs/","adj.","类似的，可比拟的","Comparable in certain respects, typically in a way that makes clearer the nature of things.","The human brain is often described as analogous to a computer.","人脑常被比作一台计算机。","academic"],
+  ["antithesis","/ænˈtɪθ.ə.sɪs/","n.","对立面，截然相反","A person or thing that is the direct opposite of someone or something else.","His calm demeanor was the antithesis of panic.","他冷静的举止与恐慌截然相反。","academic"],
+  ["apocryphal","/əˈpɒk.rɪ.fəl/","adj.","真实性存疑的，伪托的","Of doubtful authenticity, although widely circulated as being true.","The story about Newton and the apple may be partly apocryphal.","关于牛顿和苹果的故事可能部分属于杜撰。","academic"],
+  ["arbitrary","/ˈɑː.bɪ.trər.i/","adj.","武断的，任意的","Based on random choice or personal whim rather than any reason or system.","The deadline felt completely arbitrary to the team.","团队觉得这个截止日期完全是拍脑袋定的。","academic"],
+  ["articulate","/ɑːˈtɪk.jə.leɪt/","v.","清晰表达；adj. 善于表达的","Having or showing the ability to speak fluently and coherently.","She articulated her vision for the department with clarity.","她清晰地阐述了对部门发展的愿景。","academic"],
+  ["ascertain","/ˌæs.əˈteɪn/","v.","查明，确定","To find something out for certain; make sure of.","Investigators tried to ascertain the root cause of the outage.","调查人员试图查明断电的根本原因。","academic"],
+  ["axiom","/ˈæk.si.əm/","n.","公理，格言","A statement or proposition which is regarded as being established or accepted.","In Euclidean geometry, parallel lines never meet is a classic axiom.","在欧几里得几何中，平行线永不相交是一条经典公理。","academic"],
+  ["bolster","/ˈbəʊl.stər/","v.","加强，支撑","To support or strengthen; prop up.","Fresh funding bolstered the lab's research capacity.","新的资金增强了实验室的研发能力。","academic"],
+  ["cogent","/ˈkəʊ.dʒənt/","adj.","有说服力的，令人信服的","Clear, logical, and convincing.","The defense attorney presented a cogent argument.","辩护律师提出了极具说服力的论点。","academic"],
+  ["coherent","/kəʊˈhɪə.rənt/","adj.","连贯的，合乎逻辑的","Logical and consistent.","We need a coherent strategy rather than scattered fixes.","我们需要一个连贯的战略，而不是零散的修补。","academic"],
+  ["compile","/kəmˈpaɪl/","v.","汇编，编译","To produce something by assembling information collected from other sources.","They compiled a comprehensive dataset of urban traffic.","他们汇编了一份全面的城市交通数据集。","academic"],
+  ["concise","/kənˈsaɪs/","adj.","简明扼要的","Giving a lot of information clearly and in a few words.","Keep your executive summary concise and data-driven.","保持执行摘要简明扼要且以数据为支撑。","academic"],
+  ["conjecture","/kənˈdʒek.tʃər/","n./v.","推测，猜想","An opinion or conclusion formed on the basis of incomplete information.","Without logs, any explanation for the crash is mere conjecture.","没有日志，对崩溃的任何解释都只是猜测。","academic"],
+  ["conundrum","/kəˈnʌn.drəm/","n.","难题，谜题","A confusing and difficult problem or question.","Balancing growth with sustainability remains a global conundrum.","平衡增长与可持续性仍然是一个全球性难题。","academic"],
+  ["corollary","/kəˈrɒl.ər.i/","n.","推论，必然结果","A proposition that follows from one already proved.","Higher speed is a natural corollary of reducing system latency.","降低系统延迟自然会带来更快的速度。","academic"],
+  ["criterion","/kraɪˈtɪə.ri.ən/","n.","标准，准则","A principle or standard by which something may be judged or decided.","Accuracy is the primary criterion for evaluating this model.","准确性是评估该模型的首要标准。","academic"],
+  ["culminate","/ˈkʌl.mɪ.neɪt/","v.","达到顶峰，以…告终","To reach a climax or point of highest development.","Years of fieldwork culminated in a landmark discovery.","多年的实地考察最终促成了一项里程碑式的发现。","academic"],
+  ["deduce","/dɪˈdjuːs/","v.","演绎，推论","To arrive at a fact or conclusion by reasoning.","From the footprints, we deduced the animal's direction.","从脚印中，我们推断出了动物的行进方向。","academic"],
+  ["delineate","/dɪˈlɪn.i.eɪt/","v.","勾勒，精确描述","To describe or portray something precisely.","The charter clearly delineates the committee's powers.","章程明确界定了委员会的职权。","academic"],
+  ["discrepancy","/dɪˈskrep.ən.si/","n.","差异，不一致","A lack of compatibility or similarity between two or more facts.","Auditors spotted a discrepancy between the two ledgers.","审计人员发现两本账簿之间存在差异。","academic"],
+  ["disseminate","/dɪˈsem.ɪ.neɪt/","v.","传播，散布（信息）","To spread information, knowledge, or ideas widely.","Open-access journals help disseminate research faster.","开放获取期刊有助于更快地传播研究成果。","academic"],
+  ["dogmatic","/dɒɡˈmæt.ɪk/","adj.","教条的，武断的","Inclined to lay down principles as incontrovertibly true.","Science progresses by questioning, not by remaining dogmatic.","科学通过质疑进步，而非固守教条。","academic"],
+  ["elucidate","/ɪˈluː.sɪ.deɪt/","v.","阐明，解释清楚","To make something clear; explain.","The diagram helps elucidate how the algorithm works.","这张图表有助于阐明该算法的工作原理。","academic"],
+  ["enigmatic","/ˌen.ɪɡˈmæt.ɪk/","adj.","神秘的，难以理解的","Difficult to interpret or understand; mysterious.","The manuscript contains several enigmatic symbols.","这份手稿包含几个神秘的符号。","academic"],
+  ["epistemology","/ɪˌpɪs.təˈmɒl.ə.dʒi/","n.","认识论","The theory of knowledge, especially with regard to its methods and validity.","Epistemology asks how we know what we claim to know.","认识论探讨我们如何确知自己所声称知道的事物。","academic"],
+  ["equivocal","/ɪˈkwɪv.ə.kəl/","adj.","含糊其辞的，模棱两可的","Open to more than one interpretation; ambiguous.","The spokesperson gave an equivocal answer to the press.","发言人对媒体给出了含糊其辞的回答。","academic"],
+  ["erudite","/ˈer.ʊ.daɪt/","adj.","博学的，有学问的","Having or showing great knowledge or learning.","The professor delivered an erudite lecture on classical logic.","教授做了一场关于古典逻辑的博学演讲。","academic"],
+  ["esoteric","/ˌes.əˈter.ɪk/","adj.","深奥的，只有少数人懂的","Intended for or likely to be understood by only a small number of people.","Quantum field theory can seem esoteric to beginners.","量子场论对初学者来说可能显得深奥难懂。","academic"],
+  ["exacerbate","/ɪɡˈzæs.ə.beɪt/","v.","恶化，加剧","To make a problem, bad situation, or negative feeling worse.","Supply chain delays exacerbated the chip shortage.","供应链延误加剧了芯片短缺。","academic"],
+  ["exhaustive","/ɪɡˈzɔː.stɪv/","adj.","详尽的，彻底的","Examining, including, or considering all elements or aspects; fully comprehensive.","They conducted an exhaustive review of all prior studies.","他们对所有既往研究进行了详尽的综述。","academic"],
+  ["fallacy","/ˈfæl.ə.si/","n.","谬误，谬论","A mistaken belief, especially one based on unsound argument.","Appealing to popularity is a classic logical fallacy.","诉诸大众是一种经典的逻辑谬误。","academic"],
+  ["framework","/ˈfreɪm.wɜːk/","n.","框架，体系","A basic structure underlying a system, concept, or text.","The paper proposes a unified framework for risk analysis.","论文提出了一个用于风险分析的统一框架。","academic"],
+  ["fundamental","/ˌfʌn.dəˈmen.təl/","adj.","基本的，根本的","Forming a necessary base or core; of central importance.","Understanding linear algebra is fundamental to machine learning.","理解线性代数是学习机器学习的基础。","academic"],
+  ["generalize","/ˈdʒen.ər.əl.aɪz/","v.","概括，推广","To make a general or broad statement by inferring from specific cases.","A good model should generalize well to unseen data.","一个好模型应该能很好地泛化到未见过的数据上。","academic"],
+  ["heuristic","/hjʊəˈrɪs.tɪk/","adj./n.","启发式的（方法）","Enabling a person to discover or learn something for themselves.","We used a heuristic search to find a near-optimal route.","我们使用启发式搜索来寻找近似最优路径。","academic"],
+  ["holistic","/həʊˈlɪs.tɪk/","adj.","整体的，全面的","Characterized by the belief that the parts of something are interconnected.","Doctors are adopting a more holistic approach to patient care.","医生们正采用更全面的方式来照料病人。","academic"],
+  ["implication","/ˌɪm.plɪˈkeɪ.ʃən/","n.","含义，潜在影响","The conclusion that can be drawn from something, although not explicitly stated.","The policy has far-reaching implications for small businesses.","这项政策对小企业有着深远的影响。","academic"],
+  ["incoherent","/ˌɪn.kəʊˈhɪə.rənt/","adj.","不连贯的，语无伦次的","Expressed in an incomprehensible or confusing way.","Without an outline, the draft felt fragmented and incoherent.","没有提纲，这份草稿显得支离破碎、不够连贯。","academic"],
+  ["inductive","/ɪnˈdʌk.tɪv/","adj.","归纳的","Characterized by the inference of general laws from particular instances.","Inductive reasoning moves from specific observations to broad rules.","归纳推理是从具体观察推导出普遍规律。","academic"],
+  ["inherent","/ɪnˈher.ənt/","adj.","固有的，内在的","Existing in something as a permanent, essential, or characteristic attribute.","Every investment carries an inherent degree of risk.","每一项投资都带有固有的一定程度的风险。","academic"],
+  ["intricate","/ˈɪn.trɪ.kət/","adj.","错综复杂的，精细的","Very complicated or detailed.","The watchmaker repaired the intricate mechanism.","制表师修理了那个精密复杂的机械装置。","academic"],
+  ["juxtapose","/ˌdʒʌk.stəˈpəʊz/","v.","并置，对比","To place or deal with close together for contrasting effect.","The exhibit juxtaposes classical sculptures with modern photography.","展览将古典雕塑与现代摄影并置对比。","academic"],
+  ["lexicon","/ˈlek.sɪ.kən/","n.","词汇表，词典","The vocabulary of a person, language, or branch of knowledge.","Every profession develops its own specialized lexicon.","每个行业都会形成自己专属的专业词汇表。","academic"],
+  ["methodology","/ˌmeθ.əˈdɒl.ə.dʒi/","n.","方法论，研究方法","A system of methods used in a particular area of study or activity.","The reviewer praised the rigor of their research methodology.","审稿人赞扬了他们研究方法的严谨性。","academic"],
+  ["negate","/nɪˈɡeɪt/","v.","否定，使无效","To nullify; make ineffective.","One careless error could negate months of hard work.","一个粗心的错误可能会使数月的辛勤工作付诸东流。","academic"],
+  ["obfuscate","/ˈɒb.fʌs.keɪt/","v.","使模糊，使费解","To render obscure, unclear, or unintelligible.","Jargon often serves to obfuscate rather than clarify.","行话往往让人更加费解，而不是更清楚。","academic"],
+  ["objective","/əbˈdʒek.tɪv/","adj.","客观的；n. 目标","Not influenced by personal feelings or opinions in considering facts.","Judges must remain objective regardless of media pressure.","无论媒体压力如何，法官都必须保持客观。","academic"],
+  ["omniscient","/ɒmˈnɪs.i.ənt/","adj.","无所不知的","Knowing everything.","The novel is written from an omniscient third-person perspective.","这部小说采用全知第三人称视角撰写。","academic"],
+  ["ostensible","/ɒˈsten.sə.bəl/","adj.","表面上的，假装的","Stated or appearing to be true, but not necessarily so.","The ostensible reason for the meeting was budget review.","会议表面上的理由是预算审查。","academic"],
+  ["palpable","/ˈpæl.pə.bəl/","adj.","明显的，可感知的","So intense as to seem almost tangible.","There was palpable tension in the negotiation room.","谈判室里的紧张气氛几乎触手可及。","academic"],
+  ["pedagogical","/ˌped.əˈɡɒdʒ.ɪ.kəl/","adj.","教学法的，教育学的","Relating to teaching.","Interactive games offer strong pedagogical benefits for kids.","互动游戏对儿童具有显著的教学益处。","academic"],
+  ["pervasive","/pəˈveɪ.sɪv/","adj.","普遍存在的，渗透的","Spreading widely throughout an area or a group of people.","Short-form video has had a pervasive impact on attention spans.","短视频对注意力持续时间产生了普遍而深远的影响。","academic"],
+  ["plausible","/ˈplɔː.zə.bəl/","adj.","貌似合理的，可信的","Seeming reasonable or probable.","She offered a plausible explanation for the missing files.","她对文件失踪给出了一个看似合理的解释。","academic"],
+  ["pragmatic","/præɡˈmæt.ɪk/","adj.","务实的，实用主义的","Dealing with things sensibly and realistically in a way based on practical considerations.","We need a pragmatic solution that works within our budget.","我们需要一个在预算内可行的务实方案。","academic"],
+  ["preclude","/prɪˈkluːd/","v.","排除，阻止","To prevent from happening; make impossible.","Lack of funding does not preclude creative problem-solving.","缺乏资金并不排除创造性地解决问题。","academic"],
+  ["proliferate","/prəˈlɪf.ər.eɪt/","v.","激增，迅速扩散","To increase rapidly in numbers; multiply.","Electric vehicle startups proliferated over the past decade.","过去十年间，电动汽车初创公司如雨后春笋般涌现。","academic"],
+  ["quantify","/ˈkwɒn.tɪ.faɪ/","v.","量化","To express or measure the quantity of.","It is hard to quantify the long-term value of brand trust.","很难量化品牌信任的长期价值。","academic"],
+  ["reconcile","/ˈrek.ən.saɪl/","v.","调和，使一致，对账","To restore friendly relations between; make compatible.","Accountants worked late to reconcile the monthly statements.","会计师加班加点核对月度报表。","academic"],
+  ["redundant","/rɪˈdʌn.dənt/","adj.","多余的，冗余的","Not or no longer needed or useful; superfluous.","Redundant servers ensure the website stays online if one fails.","冗余服务器确保在一台故障时网站仍能在线。","academic"],
+  ["rigorous","/ˈrɪɡ.ər.əs/","adj.","严谨的，严格的","Extremely thorough, exhaustive, or accurate.","All medical devices undergo rigorous safety testing.","所有医疗设备都要经过严格的安全测试。","academic"],
+
+  // ==================== 2. BUSINESS & ECONOMICS (85) ====================
+  ["leverage","/ˈliː.vər.ɪdʒ/","v./n.","利用，杠杆作用","To use something to maximum advantage.","The company leveraged its data network to enter new markets.","公司利用其数据网络进入了新市场。","business"],
+  ["mitigate","/ˈmɪt.ɪ.ɡeɪt/","v.","缓和，减轻（风险）","To make less severe, serious, or painful.","Diversifying suppliers helps mitigate supply chain risks.","供应商多元化有助于降低供应链风险。","business"],
+  ["lucrative","/ˈluː.krə.tɪv/","adj.","有利可图的，赚钱的","Producing a great deal of profit.","Cloud services became the firm's most lucrative division.","云服务成为该公司最赚钱的部门。","business"],
+  ["viable","/ˈvaɪ.ə.bəl/","adj.","可行的，能存活的","Capable of working successfully; feasible.","Solar energy is now an economically viable alternative.","太阳能如今已是经济上可行的替代方案。","business"],
+  ["allocate","/ˈæl.ə.keɪt/","v.","分配，拨出","To distribute resources or duties for a particular purpose.","Management allocated 20% of the budget to R&D.","管理层将20%的预算分配给了研发。","business"],
+  ["amortize","/ˈæm.ə.taɪz/","v.","摊销，分期偿还","To gradually write off the initial cost of an asset over a period.","The software license cost will be amortized over three years.","软件许可费用将在三年内摊销。","business"],
+  ["arbitrage","/ˈɑː.bɪ.trɑːʒ/","n.","套利，套汇","The simultaneous buying and selling of securities or goods in different markets.","Traders used price differences across exchanges for arbitrage.","交易员利用不同交易所之间的价差进行套利。","business"],
+  ["benchmark","/ˈbentʃ.mɑːk/","n./v.","基准，标杆","A standard or point of reference against which things may be compared.","This quarterly return serves as our performance benchmark.","本季度回报率将作为我们的业绩基准。","business"],
+  ["bottleneck","/ˈbɒt.əl.nek/","n.","瓶颈，阻碍","A narrow section or point of congestion that slows down a process.","Manual approval was the biggest bottleneck in our workflow.","人工审批是我们工作流程中最大的瓶颈。","business"],
+  ["capitalize","/ˈkæp.ɪ.təl.aɪz/","v.","利用，资本化","To take the chance to gain advantage from.","They moved quickly to capitalize on rising demand.","他们迅速行动，抓住了不断增长的需求。","business"],
+  ["collateral","/kəˈlæt.ər.əl/","n./adj.","抵押品；附属的","Something pledged as security for repayment of a loan.","Real estate is commonly used as collateral for business loans.","房地产通常被用作商业贷款的抵押品。","business"],
+  ["commodity","/kəˈmɒd.ə.ti/","n.","大宗商品，日用品","A raw material or primary agricultural product that can be bought and sold.","Global commodity prices fluctuated sharply this quarter.","本季度全球大宗商品价格剧烈波动。","business"],
+  ["consolidate","/kənˈsɒl.ɪ.deɪt/","v.","合并，巩固","To combine a number of things into a single more effective whole.","The bank consolidated three regional branches into one hub.","该银行将三个区域支行合并为一个中心网点。","business"],
+  ["contingency","/kənˈtɪn.dʒən.si/","n.","应急预案，意外事件","A future event or circumstance that is possible but cannot be predicted with certainty.","Always keep a contingency fund for unexpected repairs.","务必保留一笔应急资金以应对意外维修。","business"],
+  ["deficit","/ˈdef.ɪ.sɪt/","n.","赤字，逆差，亏空","The amount by which something, especially a sum of money, is too small.","Cost cuts helped narrow the annual budget deficit.","削减成本有助于缩小年度预算赤字。","business"],
+  ["delegate","/ˈdel.ɪ.ɡeɪt/","v.","委派，授权","To entrust a task or responsibility to another person.","Effective managers know how to delegate routine tasks.","高效的管理者懂得如何委派日常任务。","business"],
+  ["depreciation","/dɪˌpriː.ʃiˈeɪ.ʃən/","n.","折旧，贬值","A reduction in the value of an asset with the passage of time.","Electric cars face different depreciation curves than gas cars.","电动汽车的折旧曲线与燃油车有所不同。","business"],
+  ["deregulate","/ˌdiːˈreɡ.jə.leɪt/","v.","解除管制，放宽限制","To remove regulations or restrictions from an industry.","The government decided to deregulate domestic airfares.","政府决定放宽国内机票价格管制。","business"],
+  ["diversify","/daɪˈvɜː.sɪ.faɪ/","v.","使多样化","To enlarge or vary a range of products or field of operation.","Investors diversify portfolios to reduce exposure to one sector.","投资者通过分散投资组合来降低单一行业风险。","business"],
+  ["dividend","/ˈdɪv.ɪ.dend/","n.","股息，红利","A sum of money paid regularly by a company to its shareholders.","The board approved a higher quarterly dividend.","董事会批准了更高的季度股息。","business"],
+  ["downsize","/ˈdaʊn.saɪz/","v.","精简规模，裁员","To make a company or organization smaller by shedding staff.","The manufacturer had to downsize during the downturn.","这家制造商在经济低迷期不得不精简规模。","business"],
+  ["economies","/ɪˈkɒn.ə.miz/","n.","经济体，节约（规模经济）","Careful management of available resources; economies of scale.","Mass production creates strong economies of scale.","大规模生产能带来显著的规模经济效益。","business"],
+  ["endorse","/ɪnˈdɔːs/","v.","背书，代言，赞同","To declare one's public approval or support of.","Several industry leaders endorsed the new safety standard.","多位行业领袖对新的安全标准表示支持。","business"],
+  ["enterprise","/ˈen.tə.praɪz/","n.","企业，事业，进取心","A project or undertaking, typically one that is difficult or requires effort.","Enterprise software requires strict security compliance.","企业级软件需要严格的安全合规。","business"],
+  ["equity","/ˈek.wɪ.ti/","n.","股权，净值，公平","The value of the shares issued by a company; fairness.","Founders often trade equity for early venture capital.","创始人常以股权换取早期风险投资。","business"],
+  ["escalate","/ˈes.kə.leɪt/","v.","升级，逐步扩大","To increase rapidly; make or become more intense.","Unresolved customer complaints can escalate into PR crises.","未解决的客户投诉可能升级为公关危机。","business"],
+  ["expedite","/ˈek.spə.daɪt/","v.","加快，促进","To make an action or process happen sooner or be accomplished more quickly.","We paid extra to expedite customs clearance.","我们支付了额外费用以加快清关速度。","business"],
+  ["feasibility","/ˌfiː.zəˈbɪl.ə.ti/","n.","可行性","The state or degree of being easily or conveniently done.","They conducted a feasibility study before building the plant.","建厂前他们进行了可行性研究。","business"],
+  ["fiduciary","/fɪˈdjuː.ʃər.i/","adj./n.","受托的，信托的","Involving trust, especially with regard to the relationship between a trustee and a beneficiary.","Advisors have a fiduciary duty to act in clients' best interests.","顾问负有以客户最大利益为重行事的受托责任。","business"],
+  ["fiscal","/ˈfɪs.kəl/","adj.","财政的，会计年度的","Relating to government revenue, especially taxes.","The company's fiscal year ends on December 31.","该公司的财年于12月31日结束。","business"],
+  ["fluctuate","/ˈflʌk.tʃu.eɪt/","v.","波动，起伏","To rise and fall irregularly in number or amount.","Exchange rates fluctuate daily in response to market news.","汇率随市场消息每日波动。","business"],
+  ["forecast","/ˈfɔː.kɑːst/","v./n.","预测，预报","To predict or estimate a future event or trend.","Analysts forecast steady revenue growth next year.","分析师预测明年营收将稳步增长。","business"],
+  ["franchise","/ˈfræn.tʃaɪz/","n.","特许经营权，加盟店","An authorization granted by a government or company to an individual or group.","He opened a coffee franchise near the train station.","他在火车站附近开了一家咖啡加盟店。","business"],
+  ["hedge","/hedʒ/","v./n.","对冲，规避风险","To protect oneself against loss on a bet or investment by making balancing transactions.","Airlines hedge fuel costs using futures contracts.","航空公司利用期货合约对冲燃油成本。","business"],
+  ["incentivize","/ɪnˈsen.tɪ.vaɪz/","v.","激励，刺激","To motivate or encourage someone to do something.","Bonuses are designed to incentivize long-term retention.","奖金旨在激励员工长期留任。","business"],
+  ["incumbent","/ɪnˈkʌm.bənt/","n./adj.","在职者，现任的；负有职责的","The holder of an office or post; currently holding office.","Challengers must offer 10x value to beat an incumbent.","挑战者必须提供十倍价值才能击败现有巨头。","business"],
+  ["inflation","/ɪnˈfleɪ.ʃən/","n.","通货膨胀","A general increase in prices and fall in the purchasing value of money.","Central banks raise interest rates to tame inflation.","央行提高利率以抑制通货膨胀。","business"],
+  ["infrastructure","/ˈɪn.frə.strʌk.tʃər/","n.","基础设施","The basic physical and organizational structures needed for operation.","Charging infrastructure is vital for EV adoption.","充电基础设施对电动汽车的普及至关重要。","business"],
+  ["insolvent","/ɪnˈsɒl.vənt/","adj.","无力偿债的，破产的","Unable to pay debts owed.","Rising debt left the retailer technically insolvent.","不断攀升的债务使这家零售商陷入技术性破产。","business"],
+  ["inventory","/ˈɪn.vən.tər.i/","n.","库存，存货清单","A complete list of items such as property, goods in stock, or contents.","Real-time tracking helps keep inventory lean.","实时追踪有助于保持精益库存。","business"],
+  ["invoice","/ˈɪn.vɔɪs/","n./v.","发票，开具账单","A list of goods sent or services provided, with a statement of the sum due.","Please verify the tax ID before issuing the invoice.","开具发票前请核实税号。","business"],
+  ["liaison","/liˈeɪ.zɒn/","n.","联络人，沟通桥梁","Communication or cooperation which facilitates a close working relationship.","She acts as the main liaison between engineering and sales.","她是工程部和销售部之间的主要联络人。","business"],
+  ["liquidation","/ˌlɪk.wɪˈdeɪ.ʃən/","n.","清算，破产变卖","The process of closing a business and distributing its assets to claimants.","Store fixtures were sold off during the liquidation.","在清算期间，商店的固定装置被变卖。","business"],
+  ["liquidity","/lɪˈkwɪd.ə.ti/","n.","流动性，变现能力","The availability of liquid assets to a market or company.","Cash reserves provide crucial liquidity during a crisis.","现金储备在危机期间提供了至关重要的流动性。","business"],
+  ["logistics","/ləˈdʒɪs.tɪks/","n.","物流，后勤保障","The detailed coordination of a complex operation involving people, facilities, or supplies.","Cold-chain logistics require strict temperature control.","冷链物流需要严格的温度控制。","business"],
+  ["macroeconomic","/ˌmæk.rəʊ.iː.kəˈnɒm.ɪk/","adj.","宏观经济的","Relating to the branch of economics concerned with large-scale economic factors.","Macroeconomic headwinds slowed global consumer spending.","宏观经济逆风放缓了全球消费支出。","business"],
+  ["margin","/ˈmɑː.dʒɪn/","n.","利润率，保证金，边缘","The amount by which revenue from sales exceeds costs in a business.","Software products typically enjoy high gross margins.","软件产品通常享有较高的毛利率。","business"],
+  ["merger","/ˈmɜː.dʒər/","n.","合并，并购","A combination of two things, especially companies, into one.","Regulators scrutinized the proposed telecom merger.","监管机构严格审查了这项拟议中的电信合并案。","business"],
+  ["monopoly","/məˈnɒp.ə.li/","n.","垄断","The exclusive possession or control of the supply of or trade in a commodity or service.","Antitrust laws prevent a single firm from holding a monopoly.","反垄断法防止单一企业形成垄断。","business"],
+  ["negotiate","/nɪˈɡəʊ.ʃi.eɪt/","v.","谈判，协商","To obtain or bring about by discussion.","Both sides negotiated a mutually beneficial licensing deal.","双方协商达成了一项互利的授权协议。","business"],
+  ["niche","/niːʃ/","n./adj.","细分市场，利基的","A specialized segment of the market for a particular kind of product or service.","They carved out a profitable niche in eco-friendly packaging.","他们在环保包装领域开辟了一个利润丰厚的细分市场。","business"],
+  ["overhead","/ˈəʊ.və.hed/","n.","日常运营成本，管理费用","An overhead cost or expense such as rent and utilities.","Remote work helped the startup cut office overhead.","远程办公帮助这家初创公司削减了办公室运营成本。","business"],
+  ["outsource","/ˈaʊt.sɔːs/","v.","外包","To obtain goods or a service from an outside or foreign supplier.","Many firms outsource payroll processing to specialized vendors.","许多公司将薪资核算外包给专业供应商。","business"],
+  ["penetrate","/ˈpen.ɪ.treɪt/","v.","渗透，打入（市场）","To succeed in forcing a way into or through a market or group.","Localized pricing helped them penetrate emerging markets.","本地化定价帮助他们打入了新兴市场。","business"],
+  ["pivot","/ˈpɪv.ət/","v./n.","转型，战略转向","To shift strategy or direction in business.","The startup pivoted from consumer apps to enterprise tools.","这家初创公司从消费级应用转型为企业级工具。","business"],
+  ["portfolio","/pɔːtˈfəʊ.li.əʊ/","n.","投资组合，作品集，产品线","A range of investments held by a person or organization.","A balanced portfolio mixes equities, bonds, and cash.","均衡的投资组合会配置股票、债券和现金。","business"],
+  ["procurement","/prəˈkjʊə.mənt/","n.","采购","The action of obtaining or procuring something, especially for business.","Automated procurement tools speed up vendor approvals.","自动化采购工具加快了供应商审批速度。","business"],
+  ["productivity","/ˌprɒd.ʌkˈtɪv.ə.ti/","n.","生产力，效率","The effectiveness of productive effort, measured in terms of output per unit.","Better developer tools boosted team productivity by 25%.","更好的开发工具将团队生产力提升了25%。","business"],
+  ["proprietary","/prəˈpraɪ.ə.tər.i/","adj.","专有的，专利的","Relating to an owner or ownership; protected by patent or copyright.","Their search engine relies on a proprietary ranking algorithm.","他们的搜索引擎依赖于专有的排序算法。","business"],
+  ["prospectus","/prəˈspek.təs/","n.","招股说明书，项目简介","A printed document that advertises or describes a school, commercial enterprise, or share offer.","Investors read the IPO prospectus carefully before subscribing.","投资者在认购前仔细阅读了IPO招股说明书。","business"],
+  ["quota","/ˈkwəʊ.tə/","n.","配额，定额","A fixed share of something that a person or group is entitled to receive or bound to contribute.","Each sales representative has a monthly revenue quota.","每位销售代表都有月度营收指标。","business"],
+  ["recession","/rɪˈseʃ.ən/","n.","经济衰退","A period of temporary economic decline during which trade and industrial activity are reduced.","Consumer staples tend to perform steadily during a recession.","必需消费品在经济衰退期间往往表现稳健。","business"],
+  ["reimburse","/ˌriː.ɪmˈbɜːs/","v.","报销，偿还","To repay a person who has spent or lost money.","The company will reimburse all approved travel expenses.","公司将报销所有经批准的差旅费用。","business"],
+  ["remuneration","/rɪˌmjuː.nəˈreɪ.ʃən/","n.","报酬，薪酬","Money paid for work or a service.","Executive remuneration is increasingly tied to ESG targets.","高管薪酬越来越多地与ESG目标挂钩。","business"],
+  ["restructure","/ˌriːˈstrʌk.tʃər/","v.","重组，调整结构","To organize differently; convert into a different structure.","The firm restructured its debt to extend maturity dates.","公司重组了债务以延长到期日。","business"],
+  ["retention","/rɪˈten.ʃən/","n.","留存，保留","The continued possession, use, or keeping of something.","Improving onboarding significantly raised user retention.","优化新用户引导流程显著提升了用户留存率。","business"],
+  ["revenue","/ˈrev.ə.njuː/","n.","营业收入，税收","Income, especially when of a company or organization and of a substantial nature.","Subscription renewals account for 70% of annual revenue.","订阅续费占年度总营收的70%。","business"],
+  ["scalable","/ˈskeɪ.lə.bəl/","adj.","可扩展的","Able to be changed in size or scale.","Cloud architecture makes the platform highly scalable.","云架构使该平台具有极高的可扩展性。","business"],
+  ["shareholder","/ˈʃeəˌhəʊl.dər/","n.","股东","An owner of shares in a company.","The CEO addressed shareholder concerns at the annual meeting.","首席执行官在年会上回应了股东的关切。","business"],
+  ["solvency","/ˈsɒl.vən.si/","n.","偿付能力","The possession of assets in excess of liabilities; ability to pay one's debts.","Strong cash flow guarantees the bank's long-term solvency.","强劲的现金流保证了银行的长期偿付能力。","business"],
+  ["stakeholder","/ˈsteɪkˌhəʊl.dər/","n.","利益相关方","A person with an interest or concern in something, especially a business.","We consulted all key stakeholders before launching the policy.","在推出该政策前，我们咨询了所有核心利益相关方。","business"],
+  ["subsidiary","/səbˈsɪd.i.ər.i/","n./adj.","子公司；辅助的","A company controlled by a holding company.","The automaker opened a European subsidiary in Munich.","这家汽车制造商在慕尼黑开设了一家欧洲子公司。","business"],
+  ["subsidy","/ˈsʌb.sɪ.di/","n.","补贴，津贴","A sum of money granted by the state or a public body to help an industry.","Government subsidies accelerated the adoption of heat pumps.","政府补贴加速了热泵的普及。","business"],
+  ["synergy","/ˈsɪn.ə.dʒi/","n.","协同效应","The interaction of two or more agents to produce a combined effect greater than the sum of their separate effects.","Combining hardware and software creates unique product synergy.","软硬件结合创造了独特的产品协同效应。","business"],
+  ["tariff","/ˈtær.ɪf/","n.","关税，价目表","A tax or duty to be paid on a particular class of imports or exports.","New import tariffs raised costs for electronics manufacturers.","新的进口关税增加了电子产品制造商的成本。","business"],
+  ["tenure","/ˈten.jər/","n.","任期，终身职位","The holding of an office; the period for which an office is held.","During her tenure, operating profits doubled.","在她任职期间，营业利润翻了一番。","business"],
+  ["transaction","/trænˈzæk.ʃən/","n.","交易，业务","An instance of buying or selling something.","Every payment transaction is encrypted end-to-end.","每笔支付交易都经过端到端加密。","business"],
+  ["turnover","/ˈtɜːnˌəʊ.vər/","n.","营业额，人员流动率","The amount of money taken by a business in a particular period; rate of staff replacement.","High employee turnover often signals management issues.","高员工流失率往往预示着管理问题。","business"],
+  ["underwrite","/ˌʌn.dəˈraɪt/","v.","承保，包销，担保","To sign and accept liability under an insurance policy or guarantee financial support.","Investment banks underwrote the company's bond issuance.","投资银行包销了该公司的债券发行。","business"],
+  ["valuation","/ˌvæl.juˈeɪ.ʃən/","n.","估值，估价","An estimation of something's worth, especially one carried out by a professional.","The startup raised Series B funding at a $500M valuation.","这家初创公司以5亿美元的估值完成了B轮融资。","business"],
+  ["venture","/ˈven.tʃər/","n./v.","风险投资项目；冒险","A risky or daring journey or undertaking.","Their joint venture aims to build solid-state batteries.","他们的合资企业旨在制造固态电池。","business"],
+  ["volatility","/ˌvɒl.əˈtɪl.ə.ti/","n.","波动性，易变性","Liability to change rapidly and unpredictably, especially for the worse.","Crypto markets are notorious for extreme price volatility.","加密货币市场以价格剧烈波动而闻名。","business"],
+  ["warranty","/ˈwɒr.ən.ti/","n.","保修单，保证","A written guarantee issued to the purchaser of an article by its manufacturer.","The battery pack comes with an eight-year warranty.","该电池组提供八年质保。","business"],
+  ["yield","/jiːld/","n./v.","收益率，产出；屈服","To produce or provide; an amount produced or financial return.","Ten-year treasury yields climbed to a six-month high.","十年期国债收益率攀升至六个月高点。","business"],
+  ["acumen","/ˈæk.jə.mən/","n.","敏锐，商业洞察力","The ability to make good judgments and quick decisions.","Her financial acumen turned the struggling unit around.","她敏锐的财务洞察力使陷入困境的部门扭亏为盈。","business"],
+
+  // ==================== 3. LITERATURE & EMOTION (85) ====================
+  ["ephemeral","/ɪˈfem.ər.əl/","adj.","短暂的，转瞬即逝的","Lasting for a very short time.","Cherry blossoms are prized precisely because their beauty is ephemeral.","樱花之所以珍贵，正是因为它的美转瞬即逝。","literature"],
+  ["serendipity","/ˌser.ənˈdɪp.ə.ti/","n.","意外发现美好事物的运气","The occurrence and development of events by chance in a happy or beneficial way.","Finding that rare book in a tiny alley shop was pure serendipity.","在小巷书店里偶遇那本珍本纯属意外之喜。","literature"],
+  ["melancholy","/ˈmel.ən.kɒl.i/","n./adj.","忧郁，悲哀","A feeling of pensive sadness, typically with no obvious cause.","Autumn rain often brings a quiet sense of melancholy.","秋雨常带来一种宁静的忧郁感。","literature"],
+  ["eloquent","/ˈel.ə.kwənt/","adj.","雄辩的，富有表现力的","Fluent or persuasive in speaking or writing.","She gave an eloquent speech on the power of literacy.","她就阅读的力量发表了一场极富感染力的演讲。","literature"],
+  ["poignant","/ˈpɔɪ.njənt/","adj.","令人心酸的，感人至深的","Evoking a keen sense of sadness or regret.","The film's final scene was deeply poignant.","电影的最后一幕令人深感触动。","literature"],
+  ["nostalgia","/nɒsˈtæl.dʒə/","n.","怀旧，乡愁","A sentimental longing or wistful affection for the past.","Old photographs always stir a wave of nostalgia.","老照片总会勾起一阵怀旧之情。","literature"],
+  ["catharsis","/kəˈθɑː.sɪs/","n.","宣泄，情感净化","The process of releasing strong or repressed emotions.","Writing in a journal can offer quiet emotional catharsis.","写日记能带来平静的情感宣泄。","literature"],
+  ["allegory","/ˈæl.ə.ɡər.i/","n.","寓言，讽喻","A story, poem, or picture that can be interpreted to reveal a hidden meaning.","The novel serves as a political allegory of power.","这部小说是关于权力的政治寓言。","literature"],
+  ["allusion","/əˈluː.ʒən/","n.","典故，暗指","An expression designed to call something to mind without mentioning it explicitly.","The poem is rich in classical mythological allusions.","这首诗富含古典神话典故。","literature"],
+  ["ambivalent","/æmˈbɪv.ə.lənt/","adj.","矛盾心理的，爱恨交织的","Having mixed feelings or contradictory ideas about someone or something.","He felt ambivalent about leaving his hometown for a big city.","对于离开家乡去大城市，他内心五味杂陈。","literature"],
+  ["anecdote","/ˈæn.ɪk.dəʊt/","n.","轶事，趣闻","A short amusing or interesting story about a real incident or person.","The speaker opened with a humorous anecdote from college.","演讲者以大学时期的一桩趣闻开场。","literature"],
+  ["apathy","/ˈæp.ə.θi/","n.","冷漠，无动于衷","Lack of interest, enthusiasm, or concern.","Voter apathy remains a challenge in local elections.","选民冷漠依然是地方选举面临的挑战。","literature"],
+  ["ardent","/ˈɑː.dənt/","adj.","热烈的，热情的","Enthusiastic or passionate.","She is an ardent supporter of classical music education.","她是古典音乐教育的热忱支持者。","literature"],
+  ["aura","/ˈɔː.rə/","n.","气氛，气场，光环","The distinctive atmosphere or quality that seems to surround and be generated by a person, thing, or place.","The ancient library carried an aura of quiet wisdom.","这座古老的图书馆散发着宁静智慧的气息。","literature"],
+  ["banal","/bəˈnɑːl/","adj.","陈腐的，平庸的","So lacking in originality as to be obvious and boring.","The plot relied on banal clichés instead of real character growth.","剧情依赖陈词滥调，而非真实的人物成长。","literature"],
+  ["befuddle","/bɪˈfʌd.əl/","v.","使迷惑，使糊涂","To make someone unable to think clearly.","The overly complex instructions completely befuddled the guests.","过于复杂的说明把客人们彻底绕糊涂了。","literature"],
+  ["bittersweet","/ˌbɪt.əˈswiːt/","adj.","苦乐参半的","Arousing pleasure tinged with sadness or pain.","Graduation day is always a bittersweet milestone.","毕业那天总是苦乐参半的里程碑。","literature"],
+  ["bliss","/blɪs/","n.","极乐，幸福","Perfect happiness; great joy.","Sitting by the warm fire with a book was pure bliss.","坐在温暖的炉火旁看书真是莫大的幸福。","literature"],
+  ["cacophony","/kəˈkɒf.ə.ni/","n.","刺耳的嘈杂声","A harsh, discordant mixture of sounds.","The city street erupted into a cacophony of horns and sirens.","城市街道上突然响起一片刺耳的喇叭声和警笛声。","literature"],
+  ["candor","/ˈkæn.dər/","n.","坦率，直率","The quality of being open and honest in expression; frankness.","I appreciate the candor with which you shared your feedback.","我很欣赏你分享反馈时的坦诚态度。","literature"],
+  ["capricious","/kəˈprɪʃ.əs/","adj.","善变的，任性的","Given to sudden and unaccountable changes of mood or behavior.","Mountain weather is notoriously capricious in spring.","春天的山区天气以善变著称。","literature"],
+  ["chagrin","/ˈʃæɡ.rɪn/","n.","懊恼，沮丧","Distress or embarrassment at having failed or been humiliated.","Much to his chagrin, he forgot his own lines on stage.","令他十分懊恼的是，他在台上忘词了。","literature"],
+  ["cliché","/ˈkliː.ʃeɪ/","n.","陈词滥调","A phrase or opinion that is overused and betrays a lack of original thought.","'Think outside the box' has become a corporate cliché.","“跳出框框思考”已经成了职场陈词滥调。","literature"],
+  ["compassion","/kəmˈpæʃ.ən/","n.","同情心，怜悯","Sympathetic pity and concern for the sufferings or misfortunes of others.","Good leadership combines accountability with genuine compassion.","优秀的领导力将责任感与真诚的同理心结合在一起。","literature"],
+  ["complacent","/kəmˈpleɪ.sənt/","adj.","自满的，得过且过的","Showing smug or uncritical satisfaction with oneself or one's achievements.","Market leaders cannot afford to grow complacent.","市场领导者绝不能变得自满懈怠。","literature"],
+  ["contemplate","/ˈkɒn.təm.pleɪt/","v.","沉思，凝视，打算","To look thoughtfully for a long time; think about.","He stood on the balcony to contemplate his next career move.","他站在阳台上沉思下一步的职业规划。","literature"],
+  ["cynical","/ˈsɪn.ɪ.kəl/","adj.","愤世嫉俗的，怀疑动机的","Believing that people are motivated purely by self-interest.","Years of broken promises made residents cynical about politics.","多年的空头支票让居民对政治感到愤世嫉俗。","literature"],
+  ["dejected","/dɪˈdʒek.tɪd/","adj.","沮丧的，灰心的","Sad and depressed; dispirited.","The team looked dejected after losing in the final minute.","在最后一分钟输掉比赛后，队员们显得很沮丧。","literature"],
+  ["delight","/dɪˈlaɪt/","n./v.","高兴，欣喜","Great pleasure.","To everyone's delight, the outdoor concert stayed dry.","令大家高兴的是，户外音乐会期间一直没有下雨。","literature"],
+  ["desolate","/ˈdes.ə.lət/","adj.","荒凉的，孤寂的","Deserted of people and in a state of bleak and dismal emptiness.","The wind howled across the desolate winter landscape.","寒风呼啸着吹过荒凉的冬日原野。","literature"],
+  ["dichromatic","/ˌdaɪ.krəʊˈmæt.ɪk/","adj.","双色的","Having or exhibiting two colors.","The artist used a stark dichromatic palette of black and gold.","艺术家采用了鲜明的黑金双色色调。","literature"],
+  ["dismal","/ˈdɪz.məl/","adj.","阴沉的，惨淡的","Depressing; dreary.","Sales got off to a dismal start due to heavy storms.","由于暴雨，销售开局惨淡。","literature"],
+  ["ecstasy","/ˈek.stə.si/","n.","狂喜，入迷","An overwhelming feeling of great happiness or joyful excitement.","Fans jumped in ecstasy when the winning goal was scored.","打进制胜球时，球迷们欣喜若狂地跳了起来。","literature"],
+  ["elegy","/ˈel.ə.dʒi/","n.","挽歌，哀诗","A poem of serious reflection, typically a lament for the dead.","The poet composed a moving elegy for his late mentor.","诗人写了一首感人的挽诗悼念已故的导师。","literature"],
+  ["empathy","/ˈem.pə.θi/","n.","共情，同理心","The ability to understand and share the feelings of another.","Active listening is the foundation of empathy.","积极倾听是共情的基础。","literature"],
+  ["enchant","/ɪnˈtʃɑːnt/","v.","使陶醉，施魔法于","To fill someone with great delight; charm.","The violinist's performance enchanted the entire hall.","小提琴家的演奏令全场观众如痴如醉。","literature"],
+  ["ennui","/ɒnˈwiː/","n.","倦怠，无聊","A feeling of listlessness and dissatisfaction arising from a lack of occupation.","A summer without structure soon turned into restless ennui.","没有规划的暑假很快变成了百无聊赖的倦怠。","literature"],
+  ["epiphany","/ɪˈpɪf.ə.ni/","n.","顿悟，灵光乍现","A moment of sudden and great revelation or realization.","While walking in the park, she had an epiphany about the bug.","在公园散步时，她突然对那个程序漏洞灵光乍现。","literature"],
+  ["ethereal","/ɪˈθɪə.ri.əl/","adj.","飘逸的，超凡脱俗的","Extremely delicate and light in a way that seems too perfect for this world.","Morning mist gave the valley an ethereal glow.","晨雾给山谷披上了一层飘逸的光晕。","literature"],
+  ["euphoria","/juːˈfɔː.ri.ə/","n.","欣快，极度兴奋","A feeling or state of intense excitement and happiness.","The euphoria of victory lasted well into the night.","胜利的狂喜一直持续到深夜。","literature"],
+  ["evocative","/ɪˈvɒk.ə.tɪv/","adj.","唤起回忆或情感的","Bringing strong images, memories, or feelings to mind.","The scent of roasted chestnuts is evocative of winter streets.","烤栗子的香味总能唤起冬日街头的记忆。","literature"],
+  ["exquisite","/ɪkˈskwɪz.ɪt/","adj.","精致的，敏锐的","Extremely beautiful and delicate.","The porcelain vase featured exquisite hand-painted details.","这只瓷瓶有着精致的手绘细节。","literature"],
+  ["fathom","/ˈfæð.əm/","v.","彻底理解，测深","To understand a difficult problem or an enigmatic person after much thought.","I could scarcely fathom why he declined the offer.","我几乎无法理解他为什么拒绝了这个机会。","literature"],
+  ["fervor","/ˈfɜː.vər/","n.","热情，炽热","Intense and passionate feeling.","The crowd cheered with patriotic fervor.","人群怀着炽热的爱国情怀欢呼起来。","literature"],
+  ["fleeting","/ˈfliː.tɪŋ/","adj.","飞逝的，短暂的","Lasting for a very short time.","We caught a fleeting glimpse of the comet before clouds rolled in.","在云层涌来之前，我们短暂地瞥见了那颗彗星。","literature"],
+  ["forlorn","/fəˈlɔːn/","adj.","孤独无助的，凄凉的","Pitifully sad and abandoned or lonely.","A forlorn puppy sat waiting by the closed gate.","一只孤零零的小狗蹲在紧闭的大门旁等待。","literature"],
+  ["gracious","/ˈɡreɪ.ʃəs/","adj.","亲切的，优雅的，宽厚的","Courteous, kind, and pleasant.","She was a gracious host who made every guest feel welcome.","她是一位亲切的主人，让每位客人都感到宾至如归。","literature"],
+  ["grief","/ɡriːf/","n.","悲痛，哀伤","Deep sorrow, especially that caused by someone's death.","Community support helped the family through their grief.","社区的支持帮助这个家庭度过了悲痛期。","literature"],
+  ["harmony","/ˈhɑː.mə.ni/","n.","和谐，和声","The quality of forming a pleasing and consistent whole.","Traditional timber homes sit in harmony with the forest.","传统木屋与森林和谐相融。","literature"],
+  ["heartfelt","/ˈhɑːt.felt/","adj.","衷心的，诚挚的","Deeply and strongly felt; sincere.","He offered a heartfelt apology for the misunderstanding.","他就这场误会表达了衷心的歉意。","literature"],
+  ["idyllic","/ɪˈdɪl.ɪk/","adj.","田园诗般的，极其美好的","Like an idyll; extremely happy, peaceful, or picturesque.","They spent an idyllic weekend in a lakeside cabin.","他们在湖边小屋度过了一个田园诗般的周末。","literature"],
+  ["illusion","/ɪˈluː.ʒən/","n.","幻觉，错觉","A deceptive appearance or impression.","Mirror walls create the illusion of a much larger room.","镜面墙营造出房间大得多的错觉。","literature"],
+  ["immortalize","/ɪˈmɔː.təl.aɪz/","v.","使不朽，使永垂不朽","To confer enduring fame upon.","The songwriter immortalized his childhood street in a ballad.","词曲作者在一首民谣中让他童年的街道永垂不朽。","literature"],
+  ["ineffable","/ɪnˈef.ə.bəl/","adj.","难以言喻的","Too great or extreme to be expressed or described in words.","Standing atop the glacier brought a sense of ineffable awe.","站在冰川之巅让人产生一种难以言喻的敬畏感。","literature"],
+  ["irony","/ˈaɪ.rə.ni/","n.","讽刺，反讽","The expression of one's meaning by using language that normally signifies the opposite.","The irony was that the fire station itself caught fire.","讽刺的是，消防局自己竟然着了火。","literature"],
+  ["labyrinth","/ˈlæb.ə.rɪnθ/","n.","迷宫，错综复杂的事物","A complicated irregular network of passages or paths.","Navigating the tax code felt like walking through a labyrinth.","研究税法就像在迷宫里穿行一样。","literature"],
+  ["lament","/ləˈment/","v./n.","哀悼，痛惜","To express passionate grief about.","Critics lamented the demolition of the historic theater.","评论家对这座历史剧院的拆除深感痛惜。","literature"],
+  ["luminous","/ˈluː.mɪ.nəs/","adj.","发光的，明亮的，清晰的","Full of or shedding light; bright or shining.","Her luminous prose illuminates complex family dynamics.","她清丽动人的文字照亮了复杂的家庭关系。","literature"],
+  ["lyrical","/ˈlɪr.ɪ.kəl/","adj.","抒情的，热情洋溢的","Expressing the writer's emotions in an imaginative and beautiful way.","The memoir is written in a deeply lyrical style.","这部回忆录以极具抒情色彩的笔触写成。","literature"],
+  ["melodic","/məˈlɒd.ɪk/","adj.","旋律优美的","Relating to or characterized by melody; pleasant-sounding.","The flute carried a gentle, melodic theme throughout the piece.","长笛在整首曲子中奏出轻柔优美的旋律。","literature"],
+  ["metaphor","/ˈmet.ə.fər/","n.","隐喻，暗喻","A figure of speech in which a word or phrase is applied to an object to which it is not literally applicable.","'Time is a thief' is one of the most common metaphors.","“时间是小偷”是最常见的隐喻之一。","literature"],
+  ["mirth","/mɜːθ/","n.","欢笑，欢乐","Amusement, especially as expressed in laughter.","The dinner table echoed with warmth and mirth.","餐桌上回荡着温暖与欢笑声。","literature"],
+  ["monotonous","/məˈnɒt.ən.əs/","adj.","单调乏味的","Dull, tedious, and repetitious; lacking in variety.","Automation replaced the monotonous data-entry work.","自动化取代了单调乏味的数据录入工作。","literature"],
+  ["muse","/mjuːz/","v./n.","沉思；灵感女神","To be absorbed in thought; a source of inspiration.","He paused to muse over the meaning of the old letter.","他停下来沉思那封旧信的含义。","literature"],
+  ["nocturnal","/nɒkˈtɜː.nəl/","adj.","夜间的，夜行性的","Done, occurring, or active at night.","Owls are nocturnal hunters with extraordinary hearing.","猫头鹰是听觉极其敏锐的夜行性捕食者。","literature"],
+  ["oblivion","/əˈblɪv.i.ən/","n.","遗忘，湮没","The state of being unaware or unconscious of what is happening; forgottenness.","Many once-famous silent films faded into oblivion.","许多曾红极一时的默片逐渐被世人遗忘。","literature"],
+  ["ode","/əʊd/","n.","颂歌，赋","A lyric poem in the form of an address to a particular subject.","Keats wrote a celebrated ode to autumn.","济慈写了一首著名的《秋颂》。","literature"],
+  ["pensive","/ˈpen.sɪv/","adj.","沉思的，忧郁的","Engaged in, involving, or reflecting deep or serious thought.","She wore a pensive expression while watching the rain.","看着雨景时，她脸上流露出若有所思的神情。","literature"],
+  ["picturesque","/ˌpɪk.tʃəˈresk/","adj.","如画的，风景优美的","Visually attractive, especially in a quaint or charming way.","The picturesque village sits nestled between green hills.","这座风景如画的村庄坐落在青山环抱之中。","literature"],
+  ["placid","/ˈplæs.ɪd/","adj.","平静的，温和的","Not easily upset or excited; calm and peaceful.","The lake was placid at dawn before the boats arrived.","黎明时分，在船只到来之前，湖面平静如镜。","literature"],
+  ["profound","/prəˈfaʊnd/","adj.","深刻的，深远的","Very great or intense; having or showing great knowledge or insight.","The book had a profound influence on my worldview.","这本书对我的世界观产生了深远的影响。","literature"],
+  ["radiant","/ˈreɪ.di.ənt/","adj.","容光焕发的，光芒四射的","Sending out light; shining or glowing brightly.","The bride looked radiant as she walked down the aisle.","新娘走过红毯时容光焕发。","literature"],
+  ["reminisce","/ˌrem.ɪˈnɪs/","v.","追忆，怀旧","To indulge in enjoyable recollection of past events.","Old classmates gathered to reminisce about high school days.","老同学们聚在一起追忆高中时光。","literature"],
+  ["resonance","/ˈrez.ə.nəns/","n.","共鸣，回响","The quality in a sound of being deep, full, and reverberating; emotional impact.","His story of resilience found deep resonance with readers.","他关于韧性的故事在读者中引起了强烈共鸣。","literature"],
+  ["reverie","/ˈrev.ər.i/","n.","幻想，白日梦","A state of being pleasantly lost in one's thoughts; a daydream.","A passing train snapped him out of his afternoon reverie.","一列经过的火车把他从午后的遐想中拉回现实。","literature"],
+  ["satire","/ˈsæt.aɪər/","n.","讽刺作品，讽刺","The use of humor, irony, exaggeration, or ridicule to expose and criticize stupidity or vices.","The play is a sharp satire on modern celebrity culture.","这部剧是对现代名人文化的辛辣讽刺。","literature"],
+  ["serenity","/səˈren.ə.ti/","n.","宁静，安详","The state of being calm, peaceful, and untroubled.","Morning meditation brings a sense of inner serenity.","晨间冥想带来一种内心的宁静。","literature"],
+  ["solace","/ˈsɒl.ɪs/","n.","安慰，慰藉","Comfort or consolation in a time of distress or sadness.","He found solace in playing the piano after a long day.","漫长的一天结束后，他在弹钢琴中找到了慰藉。","literature"],
+  ["solitude","/ˈsɒl.ɪ.tjuːd/","n.","独处，清静","The state or situation of being alone.","Creative writers often need stretches of uninterrupted solitude.","创意作家常常需要不被打扰的独处时光。","literature"],
+  ["somber","/ˈsɒm.bər/","adj.","阴郁的，严肃的","Dark or dull in color or tone; gloomy.","The memorial service struck a somber, respectful tone.","追悼会呈现出庄严肃穆的气氛。","literature"],
+  ["sublime","/səˈblaɪm/","adj.","崇高的，极美的","Of such excellence, grandeur, or beauty as to inspire great admiration or awe.","The view from the mountain pass was nothing short of sublime.","山口的景色壮丽得令人叹为观止。","literature"],
+  ["tranquil","/ˈtræŋ.kwɪl/","adj.","宁静的，平静的","Free from disturbance; calm.","A tranquil courtyard sits behind the busy street.","繁华街道背后藏着一个宁静的庭院。","literature"],
+  ["vivid","/ˈvɪv.ɪd/","adj.","生动的，鲜艳的","Producing powerful feelings or strong, clear images in the mind.","She gave a vivid description of the desert sunrise.","她对沙漠日出进行了生动的描述。","literature"],
+  ["whimsical","/ˈwɪm.zɪ.kəl/","adj.","异想天开的，古怪有趣的","Playfully quaint or fanciful, especially in an appealing way.","The illustrator is known for whimsical animal characters.","这位插画师以充满奇思妙想的动物角色闻名。","literature"],
+  ["yearn","/jɜːn/","v.","渴望，向往","To have an intense feeling of longing for something.","Many city dwellers yearn for a slower pace of life.","许多城市居民向往更慢的生活节奏。","literature"],
+
+  // ==================== 4. SOCIETY & LAW (85) ====================
+  ["autonomous","/ɔːˈtɒn.ə.məs/","adj.","自治的，自主的","Having the freedom to govern itself or control its own affairs.","Universities operate as largely autonomous institutions.","大学在很大程度上作为自治机构运作。","society"],
+  ["consensus","/kənˈsen.səs/","n.","共识，一致意见","A general agreement.","The panel reached a consensus on the new ethical guidelines.","专家组就新的伦理准则达成了共识。","society"],
+  ["stringent","/ˈstrɪn.dʒənt/","adj.","严格的，严厉的","Strict, precise, and exacting.","Aviation authorities enforce stringent maintenance rules.","航空管理部门执行严格的维护规定。","society"],
+  ["advocate","/ˈæd.və.keɪt/","v./n.","提倡，拥护；倡导者","To publicly recommend or support.","Consumer groups advocate for clearer nutrition labels.","消费者团体倡导更清晰的营养标签。","society"],
+  ["alleviate","/əˈliː.vi.eɪt/","v.","减轻，缓和（痛苦或问题）","To make suffering, deficiency, or a problem less severe.","New transit lines helped alleviate rush-hour congestion.","新开通的公交线路有助于缓解高峰期拥堵。","society"],
+  ["amendment","/əˈmend.mənt/","n.","修正案，修订","A minor change or addition designed to improve a text or piece of legislation.","Lawmakers passed an amendment to protect digital privacy.","立法者通过了一项保护数字隐私的修正案。","society"],
+  ["amnesty","/ˈæm.nə.sti/","n.","大赦，特赦","An official pardon for people who have been convicted of political offenses.","The library offered a fine amnesty to get overdue books back.","图书馆推出免罚金日以收回逾期未还的图书。","society"],
+  ["anarchy","/ˈæn.ə.ki/","n.","无政府状态，混乱","A state of disorder due to absence or nonrecognition of authority.","Without clear rules, group projects can descend into anarchy.","没有明确的规则，小组项目可能会陷入混乱。","society"],
+  ["appease","/əˈpiːz/","v.","安抚，绥靖，平息","To pacify or placate someone by acceding to their demands.","Temporary discounts failed to appease frustrated subscribers.","临时折扣未能平息不满用户的怒火。","society"],
+  ["arbitration","/ˌɑː.bɪˈtreɪ.ʃən/","n.","仲裁","The use of an arbitrator to settle a dispute.","Both firms agreed to resolve contract disputes through arbitration.","双方同意通过仲裁解决合同纠纷。","society"],
+  ["asylum","/əˈsaɪ.ləm/","n.","庇护，避难所","The protection granted by a nation to someone who has left their native country.","International law governs the process for seeking asylum.","国际法规范了寻求庇护的程序。","society"],
+  ["austerity","/ɔːˈster.ə.ti/","n.","紧缩政策，简朴","Difficult economic conditions created by government measures to reduce public expenditure.","Austerity budgets forced cuts to municipal services.","紧缩预算迫使市政服务削减开支。","society"],
+  ["authentic","/ɔːˈθen.tɪk/","adj.","真实的，正宗的","Of undisputed origin; genuine.","Art appraisers verified that the signature was authentic.","艺术品鉴定师核实该签名为真迹。","society"],
+  ["ballot","/ˈbæl.ət/","n.","选票，投票","A process of voting, in writing and typically in secret.","Union members cast their ballots on the proposed contract.","工会成员对拟议合同进行了投票表决。","society"],
+  ["bureaucracy","/bjʊəˈrɒk.rə.si/","n.","官僚主义，行政机构","A system of government in which most important decisions are made by state officials.","Streamlining permits cut down unnecessary bureaucracy.","简化审批流程减少了不必要的繁文缛节。","society"],
+  ["censorship","/ˈsen.sə.ʃɪp/","n.","审查制度","The suppression or prohibition of any parts of books, films, or news.","Debates over online content moderation and censorship continue.","关于网络内容审核与审查的争论仍在继续。","society"],
+  ["civic","/ˈsɪv.ɪk/","adj.","公民的，城市的","Relating to a city or town, especially its administration; municipal.","Volunteering is an essential part of civic engagement.","志愿服务是公民参与的重要组成部分。","society"],
+  ["coalition","/ˌkəʊ.əˈlɪʃ.ən/","n.","联盟，联合政府","An alliance for combined action, especially a temporary alliance of political parties.","A coalition of environmental groups backed the clean-air bill.","一个环保组织联盟支持这项清洁空气法案。","society"],
+  ["coerce","/kəʊˈɜːs/","v.","强迫，胁迫","To persuade an unwilling person to do something by using force or threats.","No witness should ever be coerced into signing a statement.","任何证人都不应被强迫签署声明。","society"],
+  ["compliance","/kəmˈplaɪ.əns/","n.","合规，顺从","The action or fact of complying with a wish or command.","Banks invest heavily in regulatory compliance systems.","银行在监管合规系统上投入巨资。","society"],
+  ["concede","/kənˈsiːd/","v.","承认，让步","To admit that something is true or valid after first denying or resisting it.","He conceded that the deadline was overly ambitious.","他承认这个截止日期定得过于激进了。","society"],
+  ["confiscate","/ˈkɒn.fɪ.skeɪt/","v.","没收，充公","To take or seize someone's property with authority.","Customs officers confiscated undeclared goods at the border.","海关人员在边境没收了未申报的物品。","society"],
+  ["constituent","/kənˈstɪtʃ.u.ənt/","n./adj.","选民，组成部分；组成的","A voting member of a community; being a part of a whole.","Representatives held town halls to hear from constituents.","议员举办市政厅会议听取选民意见。","society"],
+  ["corrupt","/kəˈrʌpt/","adj./v.","腐败的；使堕落","Having or showing a willingness to act dishonestly in return for money or personal gain.","Transparent bidding helps prevent corrupt procurement practices.","透明招标有助于防止采购中的腐败行为。","society"],
+  ["culpable","/ˈkʌl.pə.bəl/","adj.","有罪的，应受谴责的","Deserving blame.","The court found the contractor culpable for safety neglect.","法院认定承包商应对安全疏忽承担责任。","society"],
+  ["curtail","/kɜːˈteɪl/","v.","削减，限制","To reduce in extent or quantity; impose a restriction on.","Drought forced towns to curtail outdoor water use.","干旱迫使各城镇限制户外用水。","society"],
+  ["decree","/dɪˈkriː/","n./v.","法令，颁布","An official order issued by a legal authority.","The city issued a decree banning single-use plastics.","市政府颁布法令禁止使用一次性塑料制品。","society"],
+  ["defamation","/ˌdef.əˈmeɪ.ʃən/","n.","诽谤","The action of damaging the good reputation of someone; slander or libel.","The journalist faced a defamation lawsuit over the article.","这名记者因该文章面临诽谤诉讼。","society"],
+  ["demographic","/ˌdem.əˈɡræf.ɪk/","adj./n.","人口统计的；特定人群","Relating to the structure of populations.","An aging demographic is reshaping healthcare demand.","人口老龄化正在重塑医疗需求。","society"],
+  ["deterrent","/dɪˈter.ənt/","n.","威慑因素，遏制物","A thing that discourages or is intended to discourage someone from doing something.","Hefty fines act as a strong deterrent against illegal dumping.","高额罚款对非法倾倒垃圾起到了强有力的威慑作用。","society"],
+  ["diplomacy","/dɪˈpləʊ.mə.si/","n.","外交，交际手腕","The profession, activity, or skill of managing international relations.","Quiet diplomacy resolved the trade dispute before tariffs hit.","低调的外交斡旋在关税生效前解决了贸易争端。","society"],
+  ["disenfranchise","/ˌdɪs.ɪnˈfræn.tʃaɪz/","v.","剥夺公民权（尤指选举权）","To deprive someone of the right to vote.","Complex registration rules can inadvertently disenfranchise voters.","复杂的登记规则可能会无意中剥夺选民的投票权。","society"],
+  ["disparity","/dɪˈspær.ə.ti/","n.","悬殊，差距","A great difference.","Reports highlighted the income disparity between regions.","报告凸显了地区之间的收入差距。","society"],
+  ["dissent","/dɪˈsent/","n./v.","异议，不同意见","The expression or holding of opinions at variance with those previously or commonly held.","Healthy organizations allow respectful dissent in meetings.","健康的组织允许在会议上表达尊重的异议。","society"],
+  ["egalitarian","/ɪˌɡæl.ɪˈteə.ri.ən/","adj.","平等主义的","Believing in or based on the principle that all people are equal.","The company promotes an egalitarian, flat-hierarchy culture.","公司倡导平等、扁平化的组织文化。","society"],
+  ["embargo","/ɪmˈbɑː.ɡəʊ/","n.","禁运，禁令","An official ban on trade or other commercial activity with a particular country.","The press respected the embargo until the official launch time.","媒体遵守了禁发令，直到官方发布时间才公开报道。","society"],
+  ["emigrate","/ˈem.ɪ.ɡreɪt/","v.","移居国外","To leave one's own country in order to settle permanently in another.","His grandparents emigrated in search of better opportunities.","他的祖父母为了寻找更好的机会移居海外。","society"],
+  ["enact","/ɪˈnækt/","v.","颁布（法律），制定","To make a bill or other proposal law.","Parliament voted to enact stricter data-protection rules.","议会投票颁布了更严格的数据保护法规。","society"],
+  ["entitle","/ɪnˈtaɪ.təl/","v.","使有权利，给…题名","To give someone a legal right or a just claim to receive or do something.","This pass entitles holders to free museum admission.","持此通票可免费参观博物馆。","society"],
+  ["ethics","/ˈeθ.ɪks/","n.","伦理，道德准则","Moral principles that govern a person's behavior or the conducting of an activity.","AI ethics committees review bias in automated hiring tools.","人工智能伦理委员会审查自动化招聘工具中的偏见。","society"],
+  ["exempt","/ɪɡˈzempt/","adj./v.","免除的；豁免","Free from an obligation or liability imposed on others.","Nonprofit organizations are generally exempt from income tax.","非营利组织通常免征所得税。","society"],
+  ["extradite","/ˈek.strə.daɪt/","v.","引渡","To hand over a person accused or convicted of a crime to the jurisdiction of another state.","The treaty allows nations to extradite suspects for trial.","该条约允许各国引渡嫌疑人受审。","society"],
+  ["faction","/ˈfæk.ʃən/","n.","派系，小集团","A small organized dissenting group within a larger one.","Rival factions debated the party's platform for hours.","竞争派系就政党纲领争论了数小时。","society"],
+  ["filibuster","/ˈfɪl.ɪ.bʌs.tər/","n./v.","冗长辩论阻挠议案","An action such as a prolonged speech that obstructs progress in a legislative assembly.","A marathon speech served as a filibuster to delay the vote.","一场马拉松式的演讲被用来阻挠表决进程。","society"],
+  ["forfeit","/ˈfɔː.fɪt/","v./n.","丧失，被没收","To lose or be deprived of property or a right as a penalty for wrongdoing.","Late cancellations forfeit the booking deposit.","逾期取消预订将损失定金。","society"],
+  ["governance","/ˈɡʌv.ən.əns/","n.","治理，管理方式","The action or manner of governing.","Strong corporate governance protects minority investors.","健全的公司治理能够保护中小投资者。","society"],
+  ["hierarchy","/ˈhaɪə.rɑː.ki/","n.","等级制度，层级","A system in which members of an organization or society are ranked according to status.","Startups often operate with minimal management hierarchy.","初创公司通常采用极简的管理层级。","society"],
+  ["humanitarian","/hjuːˌmæn.ɪˈteə.ri.ən/","adj./n.","人道主义的（人）","Concerned with or seeking to promote human welfare.","Humanitarian aid trucks delivered food and medical supplies.","人道主义救援卡车送来了食品和医疗物资。","society"],
+  ["immunity","/ɪˈmjuː.nə.ti/","n.","豁免权，免疫力","Protection or exemption from something, especially an obligation or penalty.","Witnesses were granted immunity in exchange for testimony.","证人被授予豁免权以换取作证。","society"],
+  ["impartial","/ɪmˈpɑː.ʃəl/","adj.","公正的，不偏不倚的","Treating all rivals or disputants equally; fair and just.","Mediators must remain strictly impartial during talks.","调解员在谈判期间必须保持严格公正。","society"],
+  ["impunity","/ɪmˈpjuː.nə.ti/","n.","免受惩罚，逍遥法外","Exemption from punishment or freedom from the injurious consequences of an action.","Lax enforcement allowed polluters to act with impunity.","执法不严使污染者得以逍遥法外。","society"],
+  ["indict","/ɪnˈdaɪt/","v.","起诉，控告","To formally accuse of or charge with a serious crime.","A grand jury voted to indict the former executive.","大陪审团投票决定起诉这名前高管。","society"],
+  ["infringe","/ɪnˈfrɪndʒ/","v.","侵犯（权利），违反","To actively break the terms of a law or agreement; encroach on.","Unauthorized copying may infringe copyright law.","未经授权的复制可能侵犯著作权法。","society"],
+  ["jurisdiction","/ˌdʒʊə.rɪsˈdɪk.ʃən/","n.","司法管辖权，管辖范围","The official power to make legal decisions and judgments.","Digital crimes often cross national jurisdictions.","网络犯罪常常跨越国家司法管辖区。","society"],
+  ["legislation","/ˌledʒ.ɪˈsleɪ.ʃən/","n.","立法，法律","Laws, considered collectively.","New legislation mandates energy labels on all appliances.","新立法规定所有家电必须贴上能效标签。","society"],
+  ["legitimate","/ləˈdʒɪt.ɪ.mət/","adj.","合法的，正当合理的","Conforming to the law or to rules; able to be defended with logic.","Residents raised legitimate concerns about traffic noise.","居民们对交通噪音提出了合理的担忧。","society"],
+  ["litigation","/ˌlɪt.ɪˈɡeɪ.ʃən/","n.","诉讼，打官司","The process of taking legal action.","Patent litigation can drag on for years and cost millions.","专利诉讼可能拖延数年并耗资数百万。","society"],
+  ["mandate","/ˈmæn.deɪt/","n./v.","授权，强制命令","An official order or commission to do something.","The agency has a mandate to monitor air quality.","该机构负有监测空气质量的法定职责。","society"],
+  ["marginalize","/ˈmɑː.dʒɪ.nəl.aɪz/","v.","使边缘化","To treat a person, group, or concept as insignificant or peripheral.","Poor transit access can marginalize rural communities.","交通不便可能会使偏远社区被边缘化。","society"],
+  ["mediate","/ˈmiː.di.eɪt/","v.","调解，斡旋","To intervene in a dispute to bring about an agreement or reconciliation.","A neutral third party helped mediate the labor dispute.","中立第三方协助调解了这起劳资纠纷。","society"],
+  ["municipal","/mjuːˈnɪs.ɪ.pəl/","adj.","市政的，城市的","Relating to a city or town or its governing body.","Municipal bonds fund local schools and bridges.","市政债券为当地学校和桥梁建设提供资金。","society"],
+  ["norm","/nɔːm/","n.","规范，常态，标准","Something that is usual, typical, or standard.","Hybrid work has become the norm in many tech firms.","混合办公已成为许多科技公司的常态。","society"],
+  ["ordinance","/ˈɔː.dɪ.nəns/","n.","地方法规，条例","An authoritative order or local law.","A city noise ordinance limits construction after 10 p.m.","城市噪音条例限制晚上十点后施工。","society"],
+  ["oversight","/ˈəʊ.və.saɪt/","n.","监管；疏忽","The action of overseeing something; an unintentional failure to notice.","Independent oversight ensures public funds are spent properly.","独立监管确保公共资金得到妥善使用。","society"],
+  ["patronage","/ˈpæt.rən.ɪdʒ/","n.","赞助，光顾，恩赐","The support given by a patron.","Local restaurants rely on steady neighborhood patronage.","本地餐馆依赖周边居民的稳定光顾。","society"],
+  ["precedent","/ˈpres.ɪ.dənt/","n.","先例，判例","An earlier event or action that is regarded as an example or guide.","The court's ruling set an important legal precedent.","法院的裁决树立了一个重要的法律先例。","society"],
+  ["prevail","/prɪˈveɪl/","v.","占上风，盛行，获胜","To prove more powerful than opposing forces; be victorious.","Common sense eventually prevailed during the debate.","常识最终在辩论中占了上风。","society"],
+  ["prosecute","/ˈprɒs.ɪ.kjuːt/","v.","起诉，检控","To institute legal proceedings against a person or organization.","The state decided to prosecute the company for fraud.","州政府决定以欺诈罪起诉该公司。","society"],
+  ["ratify","/ˈræt.ɪ.faɪ/","v.","正式批准，签署确认","To sign or give formal consent to a treaty, contract, or agreement.","All member states must ratify the agreement before it takes effect.","所有成员国必须正式批准该协议，协议方能生效。","society"],
+  ["redress","/rɪˈdres/","v./n.","纠正，赔偿，救济","To remedy or set right an undesirable or unfair situation.","Consumers deserve swift redress for defective products.","消费者有权就缺陷产品获得迅速赔偿。","society"],
+  ["referendum","/ˌref.əˈren.dəm/","n.","全民公投","A general vote by the electorate on a single political question.","Voters approved the transit expansion in a local referendum.","选民在地方公投中批准了交通扩建计划。","society"],
+  ["regulate","/ˈreɡ.jə.leɪt/","v.","监管，调节","To control or maintain the rate or speed of a machine or process; control by rules.","Financial authorities regulate lending standards.","金融监管机构对放贷标准进行监管。","society"],
+  ["reparations","/ˌrep.əˈreɪ.ʃənz/","n.","赔偿，赔款","The making of amends for a wrong one has done, by paying money or helping.","The agreement included reparations for affected landowners.","协议包括向受影响的土地所有者支付赔偿。","society"],
+  ["sanction","/ˈsæŋk.ʃən/","n./v.","制裁；批准","A threatened penalty for disobeying a law or rule; official permission.","Trade sanctions restricted exports of advanced machinery.","贸易制裁限制了先进机械的出口。","society"],
+  ["sovereign","/ˈsɒv.rɪn/","adj./n.","主权的，至高无上的；君主","Possessing supreme or ultimate power.","Every sovereign nation manages its own monetary policy.","每个主权国家都自主管理本国货币政策。","society"],
+  ["statute","/ˈstætʃ.uːt/","n.","成文法，法规","A written law passed by a legislative body.","A statute of limitations sets the deadline for filing claims.","诉讼时效规定了提出索赔的截止期限。","society"],
+  ["subpoena","/səˈpiː.nə/","n./v.","传票；传唤","A writ ordering a person to attend a court.","The committee issued a subpoena for the financial records.","委员会发出传票调取财务记录。","society"],
+  ["suffrage","/ˈsʌf.rɪdʒ/","n.","选举权，投票权","The right to vote in political elections.","Women's suffrage reshaped democratic politics worldwide.","女性选举权运动重塑了全世界的民主政治。","society"],
+  ["surveillance","/səˈveɪ.ləns/","n.","监视，监控","Close observation, especially of a suspected spy or criminal.","Privacy advocates questioned the expansion of street surveillance.","隐私倡导者对街头监控的扩张提出了质疑。","society"],
+  ["tribunal","/traɪˈbjuː.nəl/","n.","特别法庭，仲裁庭","A court of justice or a body established to settle certain types of dispute.","An employment tribunal heard the wrongful dismissal case.","劳资仲裁庭审理了这起不当解雇案。","society"],
+  ["unanimous","/juːˈnæn.ɪ.məs/","adj.","全体一致的","Fully in agreement.","The jury reached a unanimous verdict after two hours.","陪审团在两小时后达成了一致裁决。","society"],
+  ["uphold","/ʌpˈhəʊld/","v.","维持（原判），捍卫","To confirm or support something that has been questioned.","The appeals court voted to uphold the original ruling.","上诉法院投票决定维持原判。","society"],
+  ["verdict","/ˈvɜː.dɪkt/","n.","裁决，定论","A decision on a disputed issue in a civil or criminal case.","The public awaited the verdict on the landmark trial.","公众等待着这场里程碑式审判的裁决。","society"],
+  ["veto","/ˈviː.təʊ/","v./n.","否决，否决权","A constitutional right to reject a decision or proposal made by a law-making body.","The mayor threatened to veto the zoning bill.","市长威胁要否决这项分区法案。","society"],
+  ["welfare","/ˈwel.feər/","n.","福利，安康","The health, happiness, and fortunes of a person or group.","Public parks contribute greatly to community welfare.","公园对社区福祉贡献良多。","society"],
+
+  // ==================== 5. SCIENCE & TECH (80) ====================
+  ["catalyst","/ˈkæt.əl.ɪst/","n.","催化剂，促成因素","A substance that increases the rate of a chemical reaction; an event that precipitates change.","The pandemic acted as a catalyst for remote work tools.","疫情成了远程办公工具普及的催化剂。","science"],
+  ["anomaly","/əˈnɒm.ə.li/","n.","异常，反常现象","Something that deviates from what is standard, normal, or expected.","Monitoring tools flagged a sudden anomaly in server traffic.","监控工具标记出服务器流量中的异常波动。","science"],
+  ["obsolete","/ˌɒb.səˈliːt/","adj.","过时的，被淘汰的","No longer produced or used; out of date.","Streaming services rendered physical DVD rentals largely obsolete.","流媒体服务使实体DVD租赁基本沦为过去。","science"],
+  ["simulate","/ˈsɪm.jə.leɪt/","v.","模拟，仿真","To imitate the appearance or character of.","Engineers use wind tunnels to simulate aerodynamic drag.","工程师利用风洞模拟空气动力阻力。","science"],
+  ["algorithm","/ˈæl.ɡə.rɪ.ðəm/","n.","算法","A process or set of rules to be followed in calculations or problem-solving.","A sorting algorithm arranges millions of records in milliseconds.","排序算法能在几毫秒内整理数百万条记录。","science"],
+  ["bandwidth","/ˈbænd.wɪdθ/","n.","带宽；精力容量","The capacity for data transfer of an electronic communications system.","High-definition video calls consume significant network bandwidth.","高清视频通话会消耗大量网络带宽。","science"],
+  ["biodegradable","/ˌbaɪ.əʊ.dɪˈɡreɪ.də.bəl/","adj.","可生物降解的","Capable of being decomposed by bacteria or other living organisms.","More cafés are switching to biodegradable paper cups.","越来越多的咖啡馆正改用可生物降解纸杯。","science"],
+  ["calibrate","/ˈkæl.ɪ.breɪt/","v.","校准，标定","To mark a gauge or instrument with a standard scale of readings; adjust accurately.","Technicians calibrate the lab sensors every morning.","技术人员每天早上都会校准实验室传感器。","science"],
+  ["centrifuge","/ˈsen.trɪ.fjuːdʒ/","n.","离心机","A machine with a rapidly rotating container that applies centrifugal force to its contents.","A centrifuge separates blood plasma from red blood cells.","离心机可将血浆与红细胞分离。","science"],
+  ["clone","/kləʊn/","v./n.","克隆，复制","To replicate a fragment of DNA or create an identical copy.","Developers cloned the repository to test the patch locally.","开发人员克隆了代码库以在本地测试补丁。","science"],
+  ["combustion","/kəmˈbʌs.tʃən/","n.","燃烧","The process of burning something.","Internal combustion engines are gradually giving way to EVs.","内燃机正逐渐让位于电动汽车。","science"],
+  ["compatible","/kəmˈpæt.ə.bəl/","adj.","兼容的，协调一致的","Able to exist or occur together without conflict.","Make sure the charger is compatible with your laptop's voltage.","确保充电器与你笔记本电脑的电压兼容。","science"],
+  ["conduit","/ˈkɒn.dju.ɪt/","n.","导管，渠道","A channel for conveying water or other fluid; a means of transmitting.","Fiber-optic conduits carry data beneath the ocean floor.","光纤管道在海底传输数据。","science"],
+  ["converge","/kənˈvɜːdʒ/","v.","汇聚，收敛","To tend to meet at a point.","With enough training steps, the loss function begins to converge.","经过足够的训练步数后，损失函数开始收敛。","science"],
+  ["cryptography","/krɪpˈtɒɡ.rə.fi/","n.","密码学","The art of writing or solving codes.","Modern banking relies heavily on public-key cryptography.","现代银行业高度依赖公钥密码学。","science"],
+  ["cybernetics","/ˌsaɪ.bəˈnet.ɪks/","n.","控制论","The science of communications and automatic control systems in machines and living things.","Cybernetics laid the groundwork for modern robotics.","控制论为现代机器人技术奠定了基础。","science"],
+  ["decode","/ˌdiːˈkəʊd/","v.","解码，破译","To convert a coded message into intelligible language.","The browser decodes compressed images before rendering.","浏览器在渲染前会对压缩图像进行解码。","science"],
+  ["deploy","/dɪˈplɔɪ/","v.","部署，调动","To bring into effective action; install and run software.","We will deploy the security update overnight.","我们将在夜间部署这项安全更新。","science"],
+  ["diagnostic","/ˌdaɪ.əɡˈnɒs.tɪk/","adj./n.","诊断的；诊断程序","Concerned with the diagnosis of illness or other problems.","Running a diagnostic check revealed a failing hard drive.","运行诊断检查发现一块硬盘即将损坏。","science"],
+  ["diffuse","/dɪˈfjuːz/","v./adj.","扩散，传播；分散的","To spread or cause to spread over a wide area.","Frosted glass helps diffuse harsh sunlight evenly.","磨砂玻璃有助于将刺眼的阳光均匀散射。","science"],
+  ["digitalize","/ˈdɪdʒ.ɪ.təl.aɪz/","v.","数字化","To convert information into a digital format.","Museums are racing to digitalize fragile historical archives.","博物馆正加紧将脆弱的历史档案数字化。","science"],
+  ["dormant","/ˈdɔː.mənt/","adj.","休眠的，蛰伏的","Having normal physical functions suspended or slowed down for a period of time.","The volcano has remained dormant for over two centuries.","这座火山已经休眠了两个多世纪。","science"],
+  ["dynamic","/daɪˈnæm.ɪk/","adj.","动态的，充满活力的","Characterized by constant change, activity, or progress.","Dynamic pricing adjusts ticket costs based on real-time demand.","动态定价根据实时需求调整票价。","science"],
+  ["ecosystem","/ˈiː.kəʊˌsɪs.təm/","n.","生态系统","A biological community of interacting organisms and their physical environment.","Open-source tools thrive within a collaborative developer ecosystem.","开源工具在协作的开发者生态系统中蓬勃发展。","science"],
+  ["efficiency","/ɪˈfɪʃ.ən.si/","n.","效率，效能","The ratio of useful work performed to total energy expended.","New heat pumps dramatically improve home heating efficiency.","新型热泵大幅提升了家庭供暖效率。","science"],
+  ["electrode","/ɪˈlek.trəʊd/","n.","电极","A conductor through which electricity enters or leaves an object.","Battery researchers are testing silicon-based electrodes.","电池研究人员正在测试硅基电极。","science"],
+  ["emission","/ɪˈmɪʃ.ən/","n.","排放，发射","The production and discharge of something, especially gas or radiation.","Zero-emission buses are quietly replacing diesel fleets.","零排放公交车正悄然取代柴油车队。","science"],
+  ["encrypt","/ɪnˈkrɪpt/","v.","加密","To convert information or data into a cipher or code to prevent unauthorized access.","Messaging apps encrypt chats so only participants can read them.","即时通讯应用对聊天内容加密，只有参与者能读取。","science"],
+  ["entropy","/ˈen.trə.pi/","n.","熵，混乱度","A thermodynamic quantity representing the unavailability of a system's thermal energy; disorder.","Without maintenance, software systems naturally drift toward entropy.","缺乏维护时，软件系统自然会趋向混乱。","science"],
+  ["equilibrium","/ˌiː.kwɪˈlɪb.ri.əm/","n.","平衡，均衡状态","A state in which opposing forces or influences are balanced.","The chemical reaction reached dynamic equilibrium.","化学反应达到了动态平衡。","science"],
+  ["exponential","/ˌek.spəˈnen.ʃəl/","adj.","指数级的，急剧增长的","Becoming more and more rapid.","Computing power has seen exponential growth over fifty years.","五十年来，计算能力实现了指数级增长。","science"],
+  ["extract","/ɪkˈstrækt/","v.","提取，萃取","To remove or take out, especially by effort or force.","The script extracts clean text from messy PDF documents.","该脚本能从杂乱的PDF文档中提取干净的文本。","science"],
+  ["fabricate","/ˈfæb.rɪ.keɪt/","v.","制造，捏造","To construct or manufacture; invent or concoct typically with deceitful intent.","Cleanrooms are used to fabricate microscopic silicon chips.","无尘室用于制造微观硅芯片。","science"],
+  ["finite","/ˈfaɪ.naɪt/","adj.","有限的","Having limits or bounds.","Fossil fuels are a finite resource that will eventually deplete.","化石燃料是一种最终会枯竭的有限资源。","science"],
+  ["fission","/ˈfɪʃ.ən/","n.","裂变，分裂","The action of dividing or splitting something into two or more parts.","Nuclear fission powers submarines and electricity grids.","核裂变为潜艇和电网提供动力。","science"],
+  ["fusion","/ˈfjuː.ʒən/","n.","聚变，融合","The process or result of joining two or more things together to form a single entity.","Scientists achieved a brief net energy gain in nuclear fusion.","科学家在核聚变中实现了短暂的净能量增益。","science"],
+  ["genome","/ˈdʒiː.nəʊm/","n.","基因组","The complete set of genes or genetic material present in a cell or organism.","Mapping the human genome revolutionized personalized medicine.","绘制人类基因组图谱彻底改变了精准医疗。","science"],
+  ["granular","/ˈɡræn.jə.lər/","adj.","粒状的，细颗粒度的","Resembling or consisting of small grains or particles; detailed.","Analytics dashboards provide granular breakdowns by hour.","分析仪表板提供按小时划分的精细数据。","science"],
+  ["hybrid","/ˈhaɪ.brɪd/","n./adj.","混合体；混合动力的","A thing made by combining two different elements.","Plug-in hybrid vehicles combine electric motors with gas engines.","插电式混合动力汽车将电动机与汽油发动机结合在一起。","science"],
+  ["immutable","/ɪˈmjuː.tə.bəl/","adj.","不可变的，永恒的","Unchanging over time or unable to be changed.","Blockchain ledgers store an immutable history of transactions.","区块链账本存储着不可篡改的交易历史。","science"],
+  ["inertia","/ɪˈnɜː.ʃə/","n.","惯性，惰性","A tendency to do nothing or to remain unchanged.","Organizational inertia often slows down digital transformation.","组织惯性常常拖慢数字化转型的步伐。","science"],
+  ["infrared","/ˌɪn.frəˈred/","adj./n.","红外的，红外线","Having a wavelength just greater than that of the red end of the visible light spectrum.","Infrared cameras detect heat signatures in complete darkness.","红外摄像机能在完全黑暗中探测热信号。","science"],
+  ["innovate","/ˈɪn.ə.veɪt/","v.","创新，革新","To make changes in something established, especially by introducing new methods.","Firms that fail to innovate risk losing relevance.","未能创新的企业面临被市场淘汰的风险。","science"],
+  ["integrate","/ˈɪn.tɪ.ɡreɪt/","v.","整合，集成","To combine one thing with another so that they become a whole.","The app integrates seamlessly with your calendar.","该应用能与你的日历无缝集成。","science"],
+  ["interface","/ˈɪn.tə.feɪs/","n./v.","界面，接口；对接","A point where two systems, subjects, or organizations meet and interact.","A clean user interface reduces onboarding time.","简洁的用户界面减少了上手时间。","science"],
+  ["iterate","/ˈɪt.ər.eɪt/","v.","迭代，重复","To perform or utter repeatedly; refine through cycles.","Designers iterate quickly based on early user testing.","设计师根据早期用户测试快速迭代产品。","science"],
+  ["kinetic","/kɪˈnet.ɪk/","adj.","运动的，动力的","Relating to or resulting from motion.","Regenerative braking captures kinetic energy during deceleration.","再生制动在减速时回收动能。","science"],
+  ["latency","/ˈleɪ.tən.si/","n.","延迟，潜伏期","The delay before a transfer of data begins following an instruction.","Low latency is essential for cloud gaming and video calls.","低延迟对云游戏和视频通话至关重要。","science"],
+  ["magnetic","/mæɡˈnet.ɪk/","adj.","磁性的，有吸引力的","Exhibiting or relating to magnetism.","Magnetic levitation trains glide silently above the track.","磁悬浮列车在轨道上方安静地滑行。","science"],
+  ["microcosm","/ˈmaɪ.krə.kɒz.əm/","n.","缩影，微观世界","A community, place, or situation regarded as encapsulating in miniature the characteristics of something larger.","A city subway car is a microcosm of urban society.","城市地铁车厢是都市社会的缩影。","science"],
+  ["modular","/ˈmɒdʒ.ə.lər/","adj.","模块化的","Employing or involving a module or modules as the basis of design.","Modular furniture lets you rearrange your living room easily.","模块化家具让你轻松重新布置客厅。","science"],
+  ["momentum","/məˈmen.təm/","n.","动量，势头","The quantity of motion of a moving body; impetus gained by movement.","The clean-tech sector gained tremendous momentum this year.","今年清洁技术行业获得了巨大的发展势头。","science"],
+  ["nanotechnology","/ˌnæn.əʊ.tekˈnɒl.ə.dʒi/","n.","纳米技术","The branch of technology that deals with dimensions and tolerances of less than 100 nanometers.","Nanotechnology enables targeted drug delivery inside cells.","纳米技术使细胞内的靶向药物输送成为可能。","science"],
+  ["neural","/ˈnjʊə.rəl/","adj.","神经的，神经网络的","Relating to a nerve or the nervous system.","Neural networks excel at recognizing patterns in images.","神经网络擅长识别图像中的模式。","science"],
+  ["optimal","/ˈɒp.tɪ.məl/","adj.","最佳的，最优的","Best or most favorable.","Charging an EV between 20% and 80% is optimal for battery life.","将电动车电量保持在20%至80%之间最有利于电池寿命。","science"],
+  ["oscillate","/ˈɒs.ɪ.leɪt/","v.","振荡，摆动，摇摆","To move or swing back and forth at a regular speed.","Pendulums oscillate at a steady, predictable frequency.","钟摆以稳定、可预测的频率摆动。","science"],
+  ["parallel","/ˈpær.ə.lel/","adj./n.","平行的，并行的","Side by side and having the same distance continuously between them.","Parallel processing allows GPUs to render graphics rapidly.","并行处理使GPU能够快速渲染图形。","science"],
+  ["parameter","/pəˈræm.ɪ.tər/","n.","参数，界限","A numerical or other measurable factor forming one of a set that defines a system.","Adjusting a single parameter altered the entire simulation.","调整单个参数就改变了整个仿真结果。","science"],
+  ["pathogen","/ˈpæθ.ə.dʒən/","n.","病原体","A bacterium, virus, or other microorganism that can cause disease.","Rapid tests detect common respiratory pathogens in minutes.","快速检测能在几分钟内识别常见的呼吸道病原体。","science"],
+  ["perpetual","/pəˈpetʃ.u.əl/","adj.","永恒的，不断的","Never ending or changing.","A perpetual motion machine violates the laws of physics.","永动机违背了物理定律。","science"],
+  ["phenomenon","/fəˈnɒm.ɪ.nən/","n.","现象，奇观","A fact or situation that is observed to exist or happen.","Bioluminescence is a breathtaking natural phenomenon.","生物发光是一种令人叹为观止的自然现象。","science"],
+  ["precision","/prɪˈsɪʒ.ən/","n.","精确度，精密度","The quality, condition, or fact of being exact and accurate.","Robotic arms assemble microchips with sub-millimeter precision.","机械臂以亚毫米级的精度组装微芯片。","science"],
+  ["prototype","/ˈprəʊ.tə.taɪp/","n.","原型，样机","A first, typical or preliminary model of something, especially a machine.","They 3D-printed a working prototype in 48 hours.","他们在48小时内3D打印出了一个可用的原型机。","science"],
+  ["quantum","/ˈkwɒn.təm/","n./adj.","量子（的），飞跃","A discrete quantity of energy proportional in magnitude to the frequency of radiation.","Quantum computers tackle certain math problems exponentially faster.","量子计算机解决特定数学问题的速度呈指数级提升。","science"],
+  ["radiation","/ˌreɪ.diˈeɪ.ʃən/","n.","辐射，放射线","The emission of energy as electromagnetic waves or as moving subatomic particles.","Astronauts need shielding against cosmic radiation.","宇航员需要防护宇宙辐射的屏蔽层。","science"],
+  ["superconductor","/ˌsuː.pə.kənˈdʌk.tər/","n.","超导体","A material that conducts electricity with zero resistance below a critical temperature.","Superconductors enable powerful magnets in MRI machines and particle accelerators.","超导体使核磁共振仪和粒子加速器中的强磁体成为可能。","science"],
+  ["satellite","/ˈsæt.əl.aɪt/","n.","卫星，人造卫星","An artificial body placed in orbit around the earth or moon.","Weather satellites track hurricanes days before landfall.","气象卫星在飓风登陆前几天就能追踪其轨迹。","science"],
+  ["semiconductor","/ˌsem.i.kənˈdʌk.tər/","n.","半导体","A solid substance that has a conductivity between that of an insulator and that of most metals.","Silicon remains the foundation of the global semiconductor industry.","硅依然是全球半导体产业的基石。","science"],
+  ["sensor","/ˈsen.sər/","n.","传感器","A device which detects or measures a physical property and records or responds to it.","Parking sensors alert drivers when an obstacle is near.","倒车雷达传感器在接近障碍物时提醒驾驶员。","science"],
+  ["spectrum","/ˈspek.trəm/","n.","光谱，频谱，范围","A band of colors, as seen in a rainbow; a broad range of related things.","Wireless carriers bid billions for 5G radio spectrum.","无线运营商斥资数十亿美元竞拍5G无线电频谱。","science"],
+  ["static","/ˈstæt.ɪk/","adj.","静态的，静止的；静电","Lacking in movement, action, or change.","Static HTML pages load much faster than heavy web apps.","静态HTML页面的加载速度比大型网页应用快得多。","science"],
+  ["sustainable","/səˈsteɪ.nə.bəl/","adj.","可持续的","Able to be maintained at a certain rate or level; conserving ecological balance.","Sustainable aviation fuel cuts lifecycle carbon emissions.","可持续航空燃料降低了全生命周期碳排放。","science"],
+  ["synchronize","/ˈsɪŋ.krə.naɪz/","v.","同步，同时发生","To cause to occur or operate at the same time or rate.","Cloud notes synchronize automatically across your phone and laptop.","云笔记会在你的手机和笔记本电脑之间自动同步。","science"],
+  ["synthetic","/sɪnˈθet.ɪk/","adj.","合成的，人造的","Made by chemical synthesis, especially to imitate a natural product.","Synthetic fabrics dry much faster than pure cotton.","合成纤维面料比纯棉干得快得多。","science"],
+  ["telemetry","/təˈlem.ə.tri/","n.","遥测技术","The process of recording and transmitting the readings of an instrument.","Formula 1 teams analyze live car telemetry during races.","F1车队在比赛期间实时分析赛车遥测数据。","science"],
+  ["thermal","/ˈθɜː.məl/","adj.","热的，热量的","Relating to heat.","Thermal paste transfers heat from the CPU to the cooler.","导热硅脂将热量从CPU传导至散热器。","science"],
+  ["topology","/təˈpɒl.ə.dʒi/","n.","拓扑结构，拓扑学","The way in which constituent parts are interrelated or arranged.","Network topology determines how data packets travel.","网络拓扑结构决定了数据包的传输方式。","science"],
+  ["turbine","/ˈtɜː.baɪn/","n.","涡轮机，汽轮机","A machine for producing continuous power in which a wheel or rotor is made to revolve.","Offshore wind turbines generate clean electricity at scale.","海上风力涡轮机能大规模生产清洁电力。","science"],
+  ["velocity","/vəˈlɒs.ə.ti/","n.","速度，速率","The speed of something in a given direction.","Escape velocity is the speed needed to break free of gravity.","逃逸速度是摆脱引力所需的速度。","science"],
+  ["virtual","/ˈvɜː.tʃu.əl/","adj.","虚拟的，实质上的","Not physically existing as such but made by software to appear to do so.","Virtual tours let buyers inspect apartments from home.","虚拟看房让买家足不出户就能查看公寓。","science"],
+
+  // ==================== 6. CHARACTER & BEHAVIOR (80) ====================
+  ["meticulous","/məˈtɪk.jə.ləs/","adj.","一丝不苟的，极其细致的","Showing great attention to detail; very careful and precise.","She kept meticulous records of every lab experiment.","她对每一次实验室实验都做了极其细致的记录。","character"],
+  ["resilient","/rɪˈzɪl.i.ənt/","adj.","有韧性的，能迅速恢复的","Able to withstand or recover quickly from difficult conditions.","Children are often remarkably resilient when adapting to new schools.","孩子在适应新学校时往往表现出惊人的韧性。","character"],
+  ["candid","/ˈkæn.dɪd/","adj.","坦率的，直言不讳的","Truthful and straightforward; frank.","Thank you for your candid assessment of the proposal.","感谢你对这项提案做出的坦率评估。","character"],
+  ["nonchalant","/ˈnɒn.ʃəl.ənt/","adj.","若无其事的，漫不经心的","Feeling or appearing casually calm and relaxed; not displaying anxiety.","He gave a nonchalant shrug despite the high stakes.","尽管事关重大，他还是若无其事地耸了耸肩。","character"],
+  ["lackadaisical","/ˌlæk.əˈdeɪ.zɪ.kəl/","adj.","懒洋洋的，敷衍了事的","Lacking enthusiasm and determination; carelessly lazy.","A lackadaisical attitude toward safety leads to accidents.","对安全敷衍了事的态度往往会导致事故。","character"],
+  ["affable","/ˈæf.ə.bəl/","adj.","和蔼可亲的，平易近人的","Friendly, good-natured, or easy to talk to.","Our new neighbor is an affable retired architect.","我们的新邻居是一位和蔼可亲的退休建筑师。","character"],
+  ["altruistic","/ˌæl.truˈɪs.tɪk/","adj.","利他的，无私的","Showing a disinterested and selfless concern for the well-being of others.","Donating bone marrow to a stranger is a deeply altruistic act.","向陌生人捐献骨髓是一种极度无私的行为。","character"],
+  ["ambitious","/æmˈbɪʃ.əs/","adj.","有抱负的，宏大的","Having or showing a strong desire and determination to succeed.","The city unveiled an ambitious plan to double bike lanes.","该市公布了一项将自行车道数量翻倍的宏伟计划。","character"],
+  ["amiable","/ˈeɪ.mi.ə.bəl/","adj.","和蔼友善的","Having or displaying a friendly and pleasant manner.","The two sides maintained an amiable tone throughout talks.","双方在整个谈判过程中都保持着友好的态度。","character"],
+  ["apathetic","/ˌæp.əˈθet.ɪk/","adj.","冷漠的，缺乏兴趣的","Showing or feeling no interest, enthusiasm, or concern.","Students seemed apathetic about the optional workshop.","学生们对这个选修讲座似乎兴趣寥寥。","character"],
+  ["arrogant","/ˈær.ə.ɡənt/","adj.","傲慢的，自大的","Having or revealing an exaggerated sense of one's own importance.","An arrogant refusal to listen cost him key allies.","傲慢地拒绝倾听让他失去了重要盟友。","character"],
+  ["astute","/əˈstjuːt/","adj.","精明的，敏锐的","Having or showing an ability to accurately assess situations or people.","An astute observer noticed the subtle shift in strategy.","一位敏锐的观察者注意到了战略上的微妙转变。","character"],
+  ["audacious","/ɔːˈdeɪ.ʃəs/","adj.","大胆的，无畏的","Showing a willingness to take surprisingly bold risks.","Launching a rocket company was an audacious gamble.","创办一家火箭公司是一场大胆的豪赌。","character"],
+  ["austere","/ɒˈstɪər/","adj.","严峻的，简朴的，严厉的","Severe or strict in manner, attitude, or appearance.","The monastery features austere stone walls and simple rooms.","修道院有着朴素的石墙和简陋的房间。","character"],
+  ["benevolent","/bəˈnev.əl.ənt/","adj.","仁慈的，乐善好施的","Well meaning and kindly.","A benevolent donor funded scholarships for local students.","一位仁慈的捐赠者资助了当地学生的奖学金。","character"],
+  ["boisterous","/ˈbɔɪ.stər.əs/","adj.","喧闹的，活泼好动的","Noisy, energetic, and cheerful; rowdy.","A boisterous crowd of fans spilled out of the stadium.","一群热闹欢腾的球迷涌出了体育场。","character"],
+  ["brusque","/brʊsk/","adj.","唐突的，生硬的","Abrupt or offhand in speech or manner.","His brusque reply ended the conversation prematurely.","他生硬的回答让谈话过早结束了。","character"],
+  ["callous","/ˈkæl.əs/","adj.","冷酷无情的，麻木的","Showing or having an insensitive and cruel disregard for others.","Turning away people in need seemed remarkably callous.","把需要帮助的人拒之门外显得极其冷酷。","character"],
+  ["charismatic","/ˌkær.ɪzˈmæt.ɪk/","adj.","有魅力的，感召力强的","Exercising a compelling charm which inspires devotion in others.","The charismatic coach rallied the team at halftime.","这位极具感召力的教练在中场休息时鼓舞了全队。","character"],
+  ["circumspect","/ˈsɜː.kəm.spekt/","adj.","慎重的，小心翼翼的","Wary and unwilling to take risks.","Investors remained circumspect ahead of the central bank meeting.","在央行会议召开前，投资者保持谨慎态度。","character"],
+  ["clandestine","/klænˈdes.tɪn/","adj.","秘密的，暗中进行的","Kept secret or done secretively, especially because illicit.","They held clandestine meetings before announcing the merger.","在宣布合并前，他们举行了秘密会谈。","character"],
+  ["conscientious","/ˌkɒn.ʃiˈen.ʃəs/","adj.","尽责的，一丝不苟的","Wishing to do what is right, especially to do one's work well.","Conscientious editors double-check every single citation.","尽责的编辑会仔细核对每一处引文。","character"],
+  ["contrite","/kənˈtraɪt/","adj.","悔悟的，痛悔的","Feeling or expressing remorse or penitence; affected by guilt.","He sounded genuinely contrite about missing the deadline.","他对错过截止日期表现出真诚的悔意。","character"],
+  ["cordial","/ˈkɔː.di.əl/","adj.","热诚友好的","Warm and friendly.","Despite past disagreements, their greeting was cordial.","尽管过去有过分歧，他们的问候依然热情友好。","character"],
+  ["courageous","/kəˈreɪ.dʒəs/","adj.","勇敢的，无畏的","Not deterred by danger or pain; brave.","Firefighters made a courageous rescue from the third floor.","消防员从三楼完成了一次勇敢的救援。","character"],
+  ["credulous","/ˈkredʒ.ə.ləs/","adj.","轻信的，易受骗的","Having or showing too great a readiness to believe things.","Online scams often target credulous shoppers with fake deals.","网络诈骗常利用虚假优惠瞄准轻信的买家。","character"],
+  ["dauntless","/ˈdɔːnt.ləs/","adj.","无畏的，不屈不挠的","Showing fearlessness and determination.","Dauntless explorers crossed the frozen strait on foot.","无畏的探险家徒步穿过了冰封的海峡。","character"],
+  ["decorum","/dɪˈkɔː.rəm/","n.","礼仪，端庄得体","Behavior in keeping with good taste and propriety.","Courtroom proceedings require strict decorum from all parties.","法庭审理要求各方严格遵守礼仪规范。","character"],
+  ["deferential","/ˌdef.əˈren.ʃəl/","adj.","恭敬的，顺从的","Showing deference; respectful.","He remained polite and deferential toward senior engineers.","他对资深工程师一直保持礼貌与敬重。","character"],
+  ["diligent","/ˈdɪl.ɪ.dʒənt/","adj.","勤勉的，用功的","Having or showing care and conscientiousness in one's work or duties.","Diligent practice is the quickest path to fluency.","勤奋练习是达到流利表达的最快途径。","character"],
+  ["discreet","/dɪˈskriːt/","adj.","谨慎的，守口如瓶的","Careful and circumspect in one's speech or actions to avoid offense or gain advantage.","A discreet inquiry helped clarify the HR issue quietly.","一次低调谨慎的调查悄悄厘清了人事问题。","character"],
+  ["docile","/ˈdəʊ.saɪl/","adj.","温顺的，容易管教的","Ready to accept control or instruction; submissive.","The therapy dog is remarkably docile around toddlers.","这只治疗犬在幼儿身边表现得极其温顺。","character"],
+  ["eccentric","/ɪkˈsen.trɪk/","adj.","古怪的，反常的","Unconventional and slightly strange.","The eccentric inventor kept three vintage clocks on his desk.","这位古怪的发明家桌上摆着三座古董钟。","character"],
+  ["egotistical","/ˌiː.ɡəˈtɪs.tɪ.kəl/","adj.","自我中心的，自私自利的","Excessively conceited or absorbed in oneself; self-centered.","An egotistical leader takes credit and shifts blame.","以自我为中心的领导者会揽功诿过。","character"],
+  ["empathetic","/ˌem.pəˈθet.ɪk/","adj.","有同理心的","Showing an ability to understand and share the feelings of another.","An empathetic teacher notices when a student is quietly struggling.","有同理心的老师能察觉到学生何时在默默挣扎。","character"],
+  ["fastidious","/fæˈstɪd.i.əs/","adj.","挑剔的，一丝不苟的","Very attentive to and concerned about accuracy and detail.","She is fastidious about keeping her workspace spotless.","她对保持工作区一尘不染非常讲究。","character"],
+  ["flippant","/ˈflɪp.ənt/","adj.","轻率的，漫不经心的","Not showing a serious or respectful attitude.","His flippant remark upset colleagues who took the issue seriously.","他轻率的言论激怒了认真对待此事的同事。","character"],
+  ["forthright","/ˈfɔːθ.raɪt/","adj.","直率的，坦白直爽的","Direct and outspoken; straightforward and honest.","Clients appreciate forthright advice, even when it is tough.","客户欣赏坦诚直率的建议，哪怕听起来刺耳。","character"],
+  ["frugal","/ˈfruː.ɡəl/","adj.","节俭的，朴素的","Sparing or economical with regard to money or food.","Living a frugal lifestyle allowed them to retire early.","节俭的生活方式使他们得以提前退休。","character"],
+  ["gregarious","/ɡrɪˈɡeə.ri.əs/","adj.","爱交际的，合群的","Fond of company; sociable.","Gregarious by nature, he knows everyone in the building.","他天性爱交际，大楼里的人他几乎都认识。","character"],
+  ["gullible","/ˈɡʌl.ə.bəl/","adj.","易受骗的，轻信的","Easily persuaded to believe something; credulous.","Don't be gullible enough to click suspicious prize links.","别轻信那些可疑的中奖链接而去点击。","character"],
+  ["haughty","/ˈhɔː.ti/","adj.","傲慢无礼的，目中无人的","Arrogantly superior and disdainful.","The waiter's haughty attitude ruined an otherwise fine meal.","服务员傲慢的态度毁了一顿本该美好的晚餐。","character"],
+  ["humble","/ˈhʌm.bəl/","adj.","谦逊的，简陋的","Having or showing a modest or low estimate of one's own importance.","Despite winning three awards, he stayed remarkably humble.","尽管三次获奖，他依然非常谦逊。","character"],
+  ["impulsive","/ɪmˈpʌl.sɪv/","adj.","冲动的，易受情绪驱使的","Acting or done without forethought.","Waiting 24 hours prevents most impulsive online purchases.","等待24小时能避免大多数冲动网购。","character"],
+  ["indifferent","/ɪnˈdɪf.ər.ənt/","adj.","漠不关心的，平庸的","Having no particular interest or sympathy; unconcerned.","He seemed strangely indifferent to the final outcome.","他对最终结果显得出奇地漠不关心。","character"],
+  ["industrious","/ɪnˈdʌs.tri.əs/","adj.","勤劳的，勤奋的","Diligent and hard-working.","Industrious bees pollinate the orchard all spring.","勤劳的蜜蜂整个春天都在为果园授粉。","character"],
+  ["ingenuous","/ɪnˈdʒen.ju.əs/","adj.","天真无邪的，坦率的","Innocent and unsuspecting.","Her ingenuous smile immediately put the nervous child at ease.","她真诚无邪的笑容立刻让紧张的孩子放松下来。","character"],
+  ["inquisitive","/ɪnˈkwɪz.ɪ.tɪv/","adj.","好奇的，爱探究的","Curious or inquiring.","Inquisitive toddlers ask 'why' dozens of times a day.","充满好奇心的幼儿每天要问几十次“为什么”。","character"],
+  ["intrepid","/ɪnˈtrep.ɪd/","adj.","勇猛无畏的","Fearless; adventurous.","Intrepid journalists reported from the heart of the storm.","无畏的记者从风暴中心发回了报道。","character"],
+  ["irascible","/ɪˈræs.ə.bəl/","adj.","易怒的，暴躁的","Having or showing a tendency to be easily angered.","Lack of sleep made the normally calm manager irascible.","缺乏睡眠让平时冷静的经理变得容易发火。","character"],
+  ["jovial","/ˈdʒəʊ.vi.əl/","adj.","快活的，开朗的","Cheerful and friendly.","The host kept a jovial mood throughout the family reunion.","主人在家庭聚会期间一直保持着欢快的气氛。","character"],
+  ["judicious","/dʒuːˈdɪʃ.əs/","adj.","明智的，有判断力的","Having, showing, or done with good judgment or sense.","Judicious use of color makes charts far easier to read.","明智地运用色彩能让图表更容易阅读。","character"],
+  ["magnanimous","/mæɡˈnæn.ɪ.məs/","adj.","宽宏大量的，大度的","Generous or forgiving, especially toward a rival or less powerful person.","In victory, the champion was magnanimous toward his opponent.","获胜后，冠军对对手表现得十分大度。","character"],
+  ["modest","/ˈmɒd.ɪst/","adj.","谦虚的，适度的","Unassuming or moderate in the estimation of one's abilities or achievements.","They achieved solid growth on a modest marketing budget.","他们在有限的营销预算下实现了稳健增长。","character"],
+  ["morose","/məˈrəʊs/","adj.","郁闷的，脾气坏的","Sullen and ill-tempered.","He sat morose in the corner after missing the last train.","错过末班车后，他闷闷不乐地坐在角落里。","character"],
+  ["naive","/naɪˈiːv/","adj.","天真的，幼稚的","Showing a lack of experience, wisdom, or judgment.","It was naive to assume the project would finish without delays.","以为项目不会延误就完成未免有些天真。","character"],
+  ["obstinate","/ˈɒb.stɪ.nət/","adj.","固执的，倔强的","Stubbornly refusing to change one's opinion or chosen course of action.","Obstinate refusal to compromise stalled the negotiations.","固执地拒绝妥协使谈判陷入僵局。","character"],
+  ["optimistic","/ˌɒp.tɪˈmɪs.tɪk/","adj.","乐观的","Hopeful and confident about the future.","Economists remain cautiously optimistic about recovery.","经济学家对复苏保持谨慎乐观的态度。","character"],
+  ["ostentatious","/ˌɒs.tenˈteɪ.ʃəs/","adj.","炫耀的，铺张的","Characterized by vulgar or pretentious display; designed to impress.","They preferred quiet quality over ostentatious luxury.","比起张扬的奢华，他们更偏爱低调的品质。","character"],
+  ["passive","/ˈpæs.ɪv/","adj.","被动的，消极的","Accepting or allowing what happens or what others do, without active response.","Active recall beats passive rereading every time.","主动回忆的效果每次都胜过被动重读。","character"],
+  ["persevering","/ˌpɜː.sɪˈvɪə.rɪŋ/","adj.","坚持不懈的","Continuing in a course of action even in the face of difficulty.","Persevering learners turn small daily habits into mastery.","坚持不懈的学习者能将每日微小习惯转化为精通。","character"],
+  ["pessimistic","/ˌpes.ɪˈmɪs.tɪk/","adj.","悲观的","Tending to see the worst aspect of things or believe that the worst will happen.","A pessimistic forecast prompted the team to trim costs.","悲观的预测促使团队削减了成本。","character"],
+  ["pompous","/ˈpɒm.pəs/","adj.","自负的，华而不实的","Affectedly and irritatingly grand, solemn, or self-important.","Plain language always beats pompous jargon.","朴实的语言永远胜过浮夸的行话。","character"],
+  ["precocious","/prɪˈkəʊ.ʃəs/","adj.","早熟的，早慧的","Having developed certain abilities or proclivities at an earlier age than usual.","The precocious six-year-old was already reading chapter books.","这个早慧的六岁孩子已经在读章节书了。","character"],
+  ["pretentious","/prɪˈten.ʃəs/","adj.","装腔作势的，矫饰的","Attempting to impress by affecting greater importance or merit than is actually possessed.","Skip the pretentious vocabulary and speak naturally.","省去矫揉造作的词汇，自然地表达即可。","character"],
+  ["prudent","/ˈpruː.dənt/","adj.","审慎的，精明的","Acting with or showing care and thought for the future.","Keeping an emergency savings account is a prudent habit.","保留应急储蓄账户是一个审慎的好习惯。","character"],
+  ["pugnacious","/pʌɡˈneɪ.ʃəs/","adj.","好斗的，爱争辩的","Eager or quick to argue, quarrel, or fight.","His pugnacious debating style alienated potential allies.","他好斗的辩论风格疏远了潜在的盟友。","character"],
+  ["quixotic","/kwɪkˈsɒt.ɪk/","adj.","不切实际的，堂吉诃德式的","Exceedingly idealistic; unrealistic and impractical.","Building a car from scratch in a week seemed quixotic.","一周内从零造出一辆汽车显得有些不切实际。","character"],
+  ["reckless","/ˈrek.ləs/","adj.","鲁莽的，不计后果的","Without thinking or caring about the consequences of an action.","Reckless driving puts everyone on the highway at risk.","鲁莽驾驶会让高速公路上的所有人都处于危险之中。","character"],
+  ["reticent","/ˈret.ɪ.sənt/","adj.","沉默寡言的，有保留的","Not revealing one's thoughts or feelings readily.","He was reticent about his personal plans during the interview.","在采访中，他对个人计划保持缄默。","character"],
+  ["sagacious","/səˈɡeɪ.ʃəs/","adj.","睿智的，有远见的","Having or showing keen mental discernment and good judgment; shrewd.","A sagacious mentor helps you avoid preventable mistakes.","睿智的导师能帮你避开本可预防的错误。","character"],
+  ["scrupulous","/ˈskruː.pjə.ləs/","adj.","恪守道德的，一丝不苟的","Diligent, thorough, and extremely attentive to details; having moral integrity.","Journalists must be scrupulous about verifying their sources.","记者在核实信息来源时必须一丝不苟。","character"],
+  ["stoic","/ˈstəʊ.ɪk/","adj./n.","坚忍的，斯多葛式的","Enduring pain and hardship without showing feelings or complaining.","She remained stoic throughout the grueling recovery.","在漫长痛苦的康复期间，她一直表现得十分坚忍。","character"],
+  ["stubborn","/ˈstʌb.ən/","adj.","固执的，顽固的","Having or showing dogged determination not to change one's attitude or position.","A stubborn stain refused to come out after two washes.","一块顽固的污渍洗了两次都没掉。","character"],
+  ["tactful","/ˈtækt.fəl/","adj.","圆滑得体的，老练的","Having or showing skill and sensitivity in dealing with others or difficult issues.","She found a tactful way to decline without hurting feelings.","她找到了一个得体的方式婉拒，没有伤及对方感情。","character"],
+  ["tenacious","/təˈneɪ.ʃəs/","adj.","顽强的，坚韧不拔的","Tending to keep a firm hold of something; clinging or adhering closely.","Tenacious curiosity drives great scientific breakthroughs.","顽强的好奇心推动了伟大的科学突破。","character"],
+  ["timid","/ˈtɪm.ɪd/","adj.","胆怯的，羞怯的","Showing a lack of courage or confidence; easily frightened.","A timid kitten peeked out from behind the sofa.","一只胆怯的小猫从沙发后面探出头来。","character"],
+  ["unassuming","/ˌʌn.əˈsjuː.mɪŋ/","adj.","谦逊低调的，不张扬的","Not pretentious or arrogant; modest.","Behind the unassuming storefront lies the best bakery in town.","在这家不起眼的店面背后，藏着全城最好的面包店。","character"],
+  ["vigilant","/ˈvɪdʒ.ɪ.lənt/","adj.","警觉的，警惕的","Keeping careful watch for possible danger or difficulties.","Stay vigilant against phishing emails asking for passwords.","对索要密码的钓鱼邮件要保持警惕。","character"],
+  ["zealous","/ˈzel.əs/","adj.","狂热的，热忱的","Having or showing zeal; fervent.","Zealous volunteers cleaned up the entire riverbank in one morning.","热忱的志愿者一上午就清理完了整条河岸。","character"]
+];
+
+// Enrich words with id and unit (1..10, 50 words each)
+const WORDS = RAW_WORDS.map((w, idx) => ({
+  id: idx + 1,
+  word: w[0],
+  ipa: w[1],
+  pos: w[2],
+  cn: w[3],
+  en: w[4],
+  ex: w[5],
+  exCn: w[6],
+  cat: w[7],
+  unit: Math.floor(idx / 50) + 1
+}));
+
+// State
+const STORAGE_KEY = 'lexicon500_progress_v1';
+let state = {
+  tab: 'flashcards',
+  progress: {}, // { [id]: { status: 'unlearned'|'learning'|'mastered', starred: bool } }
+  fcFilter: { cat: 'all', unit: 'all', status: 'all' },
+  fcQueue: [],
+  fcIndex: 0,
+  fcFlipped: false,
+  autoSpeak: false,
+  bankFilter: { search: '', cat: 'all', unit: 'all', status: 'all' },
+  bankPage: 1,
+  bankPageSize: 50,
+  modalWordId: null,
+  quiz: {
+    questions: [],
+    index: 0,
+    score: 0,
+    answered: false,
+    history: []
+  }
+};
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') state.progress = parsed;
+    }
+  } catch (e) {}
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+  } catch (e) {}
+}
+
+function getWordState(id) {
+  return state.progress[id] || { status: 'unlearned', starred: false };
+}
+
+function setWordStatus(id, status) {
+  const cur = getWordState(id);
+  state.progress[id] = { ...cur, status };
+  saveProgress();
+  updateHeaderStats();
+}
+
+function toggleWordStar(id) {
+  const cur = getWordState(id);
+  state.progress[id] = { ...cur, starred: !cur.starred };
+  saveProgress();
+  updateHeaderStats();
+  return state.progress[id].starred;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.add('hidden'), 2200);
+}
+
+// Speech Synthesis
+function speakText(text, btnEl) {
+  if (!('speechSynthesis' in window)) {
+    showToast('当前浏览器不支持语音朗读');
+    return;
+  }
+  try {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    utter.rate = 0.95;
+    if (btnEl) btnEl.classList.add('speaking-pulse');
+    utter.onend = () => { if (btnEl) btnEl.classList.remove('speaking-pulse'); };
+    utter.onerror = () => { if (btnEl) btnEl.classList.remove('speaking-pulse'); };
+    window.speechSynthesis.speak(utter);
+  } catch (e) {
+    if (btnEl) btnEl.classList.remove('speaking-pulse');
+  }
+}
+
+// Populate Select Dropdowns
+function initDropdowns() {
+  const catSelects = ['fcCategory', 'bankCategory', 'quizCategory'];
+  catSelects.forEach(id => {
+    const sel = document.getElementById(id);
+    Object.entries(CATEGORIES).forEach(([key, val]) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = val.name;
+      sel.appendChild(opt);
+    });
+  });
+
+  const unitSelects = ['fcUnit', 'bankUnit'];
+  unitSelects.forEach(id => {
+    const sel = document.getElementById(id);
+    for (let u = 1; u <= 10; u++) {
+      const opt = document.createElement('option');
+      opt.value = String(u);
+      opt.textContent = `Unit ${u} (${(u - 1) * 50 + 1}–${u * 50})`;
+      sel.appendChild(opt);
+    }
+  });
+}
+
+function updateHeaderStats() {
+  let mastered = 0, starred = 0;
+  WORDS.forEach(w => {
+    const s = getWordState(w.id);
+    if (s.status === 'mastered') mastered++;
+    if (s.starred) starred++;
+  });
+  document.getElementById('hdrMastered').textContent = mastered;
+  document.getElementById('hdrStarred').textContent = starred;
+  document.getElementById('hdrProgressBar').style.width = `${(mastered / WORDS.length) * 100}%`;
+}
+
+// Tab Switching
+function switchTab(tabName) {
+  state.tab = tabName;
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    const active = btn.dataset.tab === tabName;
+    btn.className = active
+      ? 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-white text-indigo-600 shadow-sm'
+      : 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-slate-600 hover:text-slate-900';
+  });
+  ['flashcards', 'bank', 'quiz', 'stats'].forEach(v => {
+    document.getElementById(`view-${v}`).classList.toggle('hidden', v !== tabName);
+  });
+  if (tabName === 'bank') renderBank();
+  if (tabName === 'stats') renderStats();
+}
+
+// ==================== FLASHCARDS ====================
+function buildFcQueue(shuffle = false) {
+  const { cat, unit, status } = state.fcFilter;
+  let list = WORDS.filter(w => {
+    if (cat !== 'all' && w.cat !== cat) return false;
+    if (unit !== 'all' && w.unit !== Number(unit)) return false;
+    const ws = getWordState(w.id);
+    if (status === 'starred') return ws.starred;
+    if (status !== 'all' && ws.status !== status) return false;
+    return true;
+  });
+  if (shuffle) {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+  }
+  state.fcQueue = list;
+  state.fcIndex = 0;
+  state.fcFlipped = false;
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  const empty = document.getElementById('fcEmptyState');
+  const stage = document.getElementById('fcStage');
+  if (state.fcQueue.length === 0) {
+    empty.classList.remove('hidden');
+    stage.classList.add('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  stage.classList.remove('hidden');
+
+  const w = state.fcQueue[state.fcIndex];
+  const ws = getWordState(w.id);
+  const catInfo = CATEGORIES[w.cat];
+
+  document.getElementById('fcCounter').textContent = `${state.fcIndex + 1} / ${state.fcQueue.length}`;
+  document.getElementById('fcCatBadge').textContent = catInfo.name;
+  document.getElementById('fcCatBadge').className = `px-2.5 py-1 rounded-full text-xs font-semibold ${catInfo.color}`;
+  document.getElementById('fcUnitBadge').textContent = `Unit ${w.unit}`;
+
+  const statusMap = {
+    unlearned: ['未学习', 'bg-slate-100 text-slate-500'],
+    learning: ['模糊/学习中', 'bg-amber-50 text-amber-700'],
+    mastered: ['已掌握 ✓', 'bg-emerald-50 text-emerald-700']
+  };
+  const [stLabel, stCls] = statusMap[ws.status];
+  const sb = document.getElementById('fcStatusBadge');
+  sb.textContent = stLabel;
+  sb.className = `px-2.5 py-1 rounded-full text-xs font-medium ${stCls}`;
+
+  const starBtn = document.getElementById('fcStarBtn');
+  starBtn.textContent = ws.starred ? '★' : '☆';
+  starBtn.className = `w-9 h-9 rounded-full flex items-center justify-center text-xl transition ${ws.starred ? 'text-amber-500 bg-amber-50' : 'text-slate-400 hover:bg-slate-100'}`;
+
+  document.getElementById('fcWord').textContent = w.word;
+  document.getElementById('fcPos').textContent = w.pos;
+  document.getElementById('fcIpa').textContent = w.ipa;
+
+  document.getElementById('fcBackWord').textContent = w.word;
+  document.getElementById('fcBackPos').textContent = w.pos;
+  document.getElementById('fcBackIpa').textContent = w.ipa;
+  document.getElementById('fcCn').textContent = w.cn;
+  document.getElementById('fcEn').textContent = w.en;
+  document.getElementById('fcEx').textContent = w.ex;
+  document.getElementById('fcExCn').textContent = w.exCn;
+
+  const card = document.getElementById('flashcard');
+  card.classList.toggle('rotate-y-180', state.fcFlipped);
+
+  if (state.autoSpeak && !state.fcFlipped) {
+    speakText(w.word, document.getElementById('fcSpeakBtn'));
+  }
+}
+
+function nextFlashcard(delta = 1) {
+  if (state.fcQueue.length === 0) return;
+  state.fcIndex = (state.fcIndex + delta + state.fcQueue.length) % state.fcQueue.length;
+  state.fcFlipped = false;
+  renderFlashcard();
+}
+
+// ==================== WORD BANK ====================
+function getFilteredBank() {
+  const { search, cat, unit, status } = state.bankFilter;
+  const q = search.trim().toLowerCase();
+  return WORDS.filter(w => {
+    if (cat !== 'all' && w.cat !== cat) return false;
+    if (unit !== 'all' && w.unit !== Number(unit)) return false;
+    const ws = getWordState(w.id);
+    if (status === 'starred' && !ws.starred) return false;
+    if (status !== 'all' && status !== 'starred' && ws.status !== status) return false;
+    if (q) {
+      return w.word.toLowerCase().includes(q) || w.cn.includes(q) || w.ex.toLowerCase().includes(q);
+    }
+    return true;
+  });
+}
+
+function renderBank() {
+  const list = getFilteredBank();
+  const totalPages = Math.max(1, Math.ceil(list.length / state.bankPageSize));
+  if (state.bankPage > totalPages) state.bankPage = totalPages;
+
+  document.getElementById('bankCount').textContent = list.length;
+  document.getElementById('bankPageInfo').textContent = `第 ${state.bankPage} / ${totalPages} 页`;
+  document.getElementById('bankPrevPage').disabled = state.bankPage <= 1;
+  document.getElementById('bankNextPage').disabled = state.bankPage >= totalPages;
+
+  const start = (state.bankPage - 1) * state.bankPageSize;
+  const slice = list.slice(start, start + state.bankPageSize);
+  const container = document.getElementById('bankList');
+
+  if (slice.length === 0) {
+    container.innerHTML = `<div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center text-sm text-slate-500">没有找到匹配的单词。</div>`;
+    return;
+  }
+
+  container.innerHTML = slice.map(w => {
+    const ws = getWordState(w.id);
+    const catInfo = CATEGORIES[w.cat];
+    const dot = ws.status === 'mastered' ? 'bg-emerald-500' : ws.status === 'learning' ? 'bg-amber-400' : 'bg-slate-300';
+    return `
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 hover:border-indigo-300 hover:shadow-sm transition flex flex-col justify-between gap-2">
+        <div class="flex items-start justify-between gap-2">
+          <div class="cursor-pointer flex-1" data-open-word="${w.id}">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="w-2 h-2 rounded-full ${dot}"></span>
+              <span class="font-bold text-base text-slate-900">${w.word}</span>
+              <span class="text-xs font-mono text-slate-400">${w.ipa}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">${w.pos}</span>
+            </div>
+            <p class="text-sm font-medium text-slate-700 mt-1">${w.cn}</p>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button data-speak-word="${w.id}" class="w-8 h-8 rounded-full hover:bg-indigo-50 text-indigo-600 text-sm flex items-center justify-center" title="朗读">🔊</button>
+            <button data-star-word="${w.id}" class="w-8 h-8 rounded-full hover:bg-amber-50 text-lg flex items-center justify-center ${ws.starred ? 'text-amber-500' : 'text-slate-300'}" title="收藏">${ws.starred ? '★' : '☆'}</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-100">
+          <span class="px-2 py-0.5 rounded-full ${catInfo.color} font-medium">${catInfo.name} · Unit ${w.unit}</span>
+          <button data-open-word="${w.id}" class="text-indigo-600 font-medium hover:underline">查看例句 →</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Modal
+function openWordModal(id) {
+  const w = WORDS.find(x => x.id === id);
+  if (!w) return;
+  state.modalWordId = id;
+  const ws = getWordState(id);
+  document.getElementById('mWord').textContent = w.word;
+  document.getElementById('mPos').textContent = w.pos;
+  document.getElementById('mIpa').textContent = w.ipa;
+  document.getElementById('mCn').textContent = w.cn;
+  document.getElementById('mEn').textContent = w.en;
+  document.getElementById('mEx').textContent = w.ex;
+  document.getElementById('mExCn').textContent = w.exCn;
+  document.getElementById('mStarBtn').textContent = ws.starred ? '★ 已收藏' : '☆ 收藏单词';
+  document.getElementById('wordModal').classList.remove('hidden');
+}
+
+// ==================== QUIZ ====================
+function startQuiz() {
+  const scope = document.getElementById('quizScope').value;
+  const mode = document.getElementById('quizMode').value;
+  const count = Number(document.getElementById('quizCount').value);
+  const cat = document.getElementById('quizCategory').value;
+
+  let pool = WORDS.filter(w => {
+    if (cat !== 'all' && w.cat !== cat) return false;
+    const ws = getWordState(w.id);
+    if (scope === 'starred') return ws.starred;
+    if (scope === 'unlearned_learning') return ws.status !== 'mastered';
+    return true;
+  });
+
+  if (pool.length < 4) {
+    showToast('当前条件下的单词不足 4 个，请放宽筛选范围');
+    return;
+  }
+
+  // Shuffle pool
+  pool = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(count, pool.length));
+
+  const questions = pool.map(target => {
+    const distractors = WORDS.filter(w => w.id !== target.id)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+    const options = [target, ...distractors].sort(() => Math.random() - 0.5);
+    return { target, options, mode };
+  });
+
+  state.quiz = { questions, index: 0, score: 0, answered: false, history: [] };
+  document.getElementById('quizSetup').classList.add('hidden');
+  document.getElementById('quizResult').classList.add('hidden');
+  document.getElementById('quizActive').classList.remove('hidden');
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = state.quiz.questions[state.quiz.index];
+  const total = state.quiz.questions.length;
+  state.quiz.answered = false;
+
+  document.getElementById('qIndex').textContent = state.quiz.index + 1;
+  document.getElementById('qTotal').textContent = total;
+  document.getElementById('qScore').textContent = state.quiz.score;
+  document.getElementById('qProgress').style.width = `${((state.quiz.index + 1) / total) * 100}%`;
+  document.getElementById('qFeedback').classList.add('hidden');
+
+  const typeLabels = { en2cn: '英译中', cn2en: '中译英', cloze: '例句语境填空' };
+  document.getElementById('qTypeLabel').textContent = typeLabels[q.mode];
+
+  const promptEl = document.getElementById('qPrompt');
+  const subEl = document.getElementById('qSubPrompt');
+  const speakBtn = document.getElementById('qSpeakBtn');
+
+  if (q.mode === 'en2cn') {
+    promptEl.textContent = q.target.word;
+    subEl.textContent = `${q.target.pos} ${q.target.ipa}`;
+    speakBtn.classList.remove('hidden');
+  } else if (q.mode === 'cn2en') {
+    promptEl.textContent = q.target.cn;
+    subEl.textContent = `词性提示：${q.target.pos} · 英文释义：${q.target.en}`;
+    speakBtn.classList.add('hidden');
+  } else {
+    const regex = new RegExp(q.target.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig');
+    const blanked = q.target.ex.replace(regex, '______');
+    promptEl.textContent = blanked === q.target.ex ? `${q.target.ex} (______)` : blanked;
+    subEl.textContent = q.target.exCn;
+    speakBtn.classList.add('hidden');
+  }
+
+  const optBox = document.getElementById('qOptions');
+  optBox.innerHTML = q.options.map((opt, idx) => {
+    const label = q.mode === 'en2cn' ? opt.cn : `${opt.word} (${opt.pos})`;
+    return `
+      <button data-qopt="${opt.id}" class="q-opt-btn w-full text-left px-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 text-sm sm:text-base font-medium text-slate-800 transition flex items-center gap-3">
+        <span class="w-6 h-6 rounded-full bg-white border border-slate-200 text-xs font-bold flex items-center justify-center text-slate-500">${String.fromCharCode(65 + idx)}</span>
+        <span>${label}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function handleQuizAnswer(chosenId) {
+  if (state.quiz.answered) return;
+  state.quiz.answered = true;
+  const q = state.quiz.questions[state.quiz.index];
+  const correct = chosenId === q.target.id;
+  if (correct) {
+    state.quiz.score++;
+    setWordStatus(q.target.id, 'mastered');
+  } else {
+    setWordStatus(q.target.id, 'learning');
+  }
+  state.quiz.history.push({ word: q.target, correct });
+
+  document.getElementById('qScore').textContent = state.quiz.score;
+  document.querySelectorAll('.q-opt-btn').forEach(btn => {
+    const id = Number(btn.dataset.qopt);
+    btn.disabled = true;
+    if (id === q.target.id) {
+      btn.className = 'q-opt-btn w-full text-left px-4 py-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold text-sm sm:text-base flex items-center gap-3';
+    } else if (id === chosenId && !correct) {
+      btn.className = 'q-opt-btn w-full text-left px-4 py-3.5 rounded-2xl border-2 border-rose-400 bg-rose-50 text-rose-900 font-medium text-sm sm:text-base flex items-center gap-3';
+    }
+  });
+
+  const fb = document.getElementById('qFeedback');
+  fb.classList.remove('hidden');
+  fb.className = `rounded-2xl p-4 text-sm border ${correct ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900'}`;
+  document.getElementById('qFeedbackTitle').textContent = correct ? '✓ 回答正确！已自动标记为「掌握」' : `✕ 答错了，正确答案是：${q.target.word}（${q.target.cn}）`;
+  document.getElementById('qFeedbackBody').textContent = `例句：${q.target.ex} — ${q.target.exCn}`;
+  document.getElementById('qNextBtn').textContent = state.quiz.index + 1 >= state.quiz.questions.length ? '查看测验结果' : '下一题 →';
+}
+
+function showQuizResult() {
+  document.getElementById('quizActive').classList.add('hidden');
+  document.getElementById('quizResult').classList.remove('hidden');
+  const total = state.quiz.questions.length;
+  const pct = Math.round((state.quiz.score / total) * 100);
+  document.getElementById('qrScoreText').textContent = `${state.quiz.score} / ${total}`;
+  document.getElementById('qrAccuracyText').textContent = `正确率 ${pct}%`;
+
+  document.getElementById('qrReviewList').innerHTML = state.quiz.history.map(item => `
+    <div class="flex items-center justify-between p-3 rounded-xl border ${item.correct ? 'bg-emerald-50/50 border-emerald-100' : 'bg-rose-50/60 border-rose-200'}">
+      <div>
+        <span class="font-bold text-slate-900 text-sm">${item.word.word}</span>
+        <span class="text-xs text-slate-500 ml-2">${item.word.cn}</span>
+      </div>
+      <span class="text-xs font-semibold ${item.correct ? 'text-emerald-600' : 'text-rose-600'}">${item.correct ? '✓ 正确' : '✕ 需复习'}</span>
+    </div>
+  `).join('');
+}
+
+// ==================== STATS & EXPORT ====================
+function renderStats() {
+  let mastered = 0, learning = 0, starred = 0;
+  const catStats = {};
+  const unitStats = {};
+  Object.keys(CATEGORIES).forEach(k => catStats[k] = { total: 0, mastered: 0 });
+  for (let u = 1; u <= 10; u++) unitStats[u] = { total: 0, mastered: 0 };
+
+  WORDS.forEach(w => {
+    const ws = getWordState(w.id);
+    if (ws.status === 'mastered') mastered++;
+    if (ws.status === 'learning') learning++;
+    if (ws.starred) starred++;
+    catStats[w.cat].total++;
+    unitStats[w.unit].total++;
+    if (ws.status === 'mastered') {
+      catStats[w.cat].mastered++;
+      unitStats[w.unit].mastered++;
+    }
+  });
+
+  document.getElementById('stMastered').textContent = mastered;
+  document.getElementById('stLearning').textContent = learning;
+  document.getElementById('stStarred').textContent = starred;
+
+  document.getElementById('stCatBars').innerHTML = Object.entries(CATEGORIES).map(([k, info]) => {
+    const s = catStats[k];
+    const pct = Math.round((s.mastered / s.total) * 100);
+    return `
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="font-semibold text-slate-700">${info.name}</span>
+          <span class="text-slate-500">${s.mastered} / ${s.total} (${pct}%)</span>
+        </div>
+        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full bg-indigo-600 rounded-full transition-all" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('stUnitBars').innerHTML = Object.entries(unitStats).map(([u, s]) => {
+    const pct = Math.round((s.mastered / s.total) * 100);
+    return `
+      <div class="flex items-center gap-3 text-xs">
+        <span class="w-14 font-semibold text-slate-600">Unit ${u}</span>
+        <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full bg-emerald-500 rounded-full transition-all" style="width:${pct}%"></div>
+        </div>
+        <span class="w-16 text-right text-slate-500">${s.mastered}/${s.total}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function downloadCsv(onlyImportant = false) {
+  const rows = onlyImportant
+    ? WORDS.filter(w => { const s = getWordState(w.id); return s.starred || s.status !== 'mastered'; })
+    : WORDS;
+  const header = ['ID', 'Unit', 'Category', 'Word', 'IPA', 'POS', 'Chinese', 'English', 'Example', 'Example_CN', 'Status'];
+  const escape = v => `"${String(v).replace(/"/g, '""')}"`;
+  const lines = [header.join(',')].concat(rows.map(w => {
+    const s = getWordState(w.id);
+    return [w.id, w.unit, CATEGORIES[w.cat].name, w.word, w.ipa, w.pos, w.cn, w.en, w.ex, w.exCn, s.status].map(escape).join(',');
+  }));
+  const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = onlyImportant ? 'lexicon500_review.csv' : 'lexicon500_all.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`已导出 ${rows.length} 个单词`);
+}
+
+// ==================== EVENT LISTENERS ====================
+document.addEventListener('DOMContentLoaded', () => {
+  loadProgress();
+  initDropdowns();
+  updateHeaderStats();
+  buildFcQueue(false);
+
+  // Tabs
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // Flashcard flip & controls
+  document.getElementById('flashcard').addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    state.fcFlipped = !state.fcFlipped;
+    renderFlashcard();
+  });
+
+  document.getElementById('fcSpeakBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const w = state.fcQueue[state.fcIndex];
+    if (w) speakText(w.word, e.currentTarget);
+  });
+  document.getElementById('fcBackSpeakBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const w = state.fcQueue[state.fcIndex];
+    if (w) speakText(w.word, e.currentTarget);
+  });
+  document.getElementById('fcSpeakExBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const w = state.fcQueue[state.fcIndex];
+    if (w) speakText(w.ex, e.currentTarget);
+  });
+
+  document.getElementById('fcStarBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const w = state.fcQueue[state.fcIndex];
+    if (!w) return;
+    const starred = toggleWordStar(w.id);
+    renderFlashcard();
+    showToast(starred ? '已加入收藏夹 ★' : '已取消收藏');
+  });
+
+  document.querySelectorAll('.rate-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const w = state.fcQueue[state.fcIndex];
+      if (!w) return;
+      setWordStatus(w.id, btn.dataset.rate);
+      nextFlashcard(1);
+    });
+  });
+
+  document.getElementById('fcPrevBtn').addEventListener('click', () => nextFlashcard(-1));
+  document.getElementById('fcNextBtn').addEventListener('click', () => nextFlashcard(1));
+  document.getElementById('fcShuffleBtn').addEventListener('click', () => {
+    buildFcQueue(true);
+    showToast('已随机打乱当前队列');
+  });
+  document.getElementById('fcAutoSpeakBtn').addEventListener('click', () => {
+    state.autoSpeak = !state.autoSpeak;
+    document.getElementById('autoSpeakLabel').textContent = state.autoSpeak ? '开' : '关';
+  });
+
+  ['fcCategory', 'fcUnit', 'fcStatus'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      state.fcFilter.cat = document.getElementById('fcCategory').value;
+      state.fcFilter.unit = document.getElementById('fcUnit').value;
+      state.fcFilter.status = document.getElementById('fcStatus').value;
+      buildFcQueue(false);
+    });
+  });
+  document.getElementById('fcResetFilterBtn').addEventListener('click', () => {
+    document.getElementById('fcCategory').value = 'all';
+    document.getElementById('fcUnit').value = 'all';
+    document.getElementById('fcStatus').value = 'all';
+    state.fcFilter = { cat: 'all', unit: 'all', status: 'all' };
+    buildFcQueue(false);
+  });
+
+  // Keyboard shortcuts in flashcard tab
+  document.addEventListener('keydown', (e) => {
+    if (state.tab !== 'flashcards') return;
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (!document.getElementById('wordModal').classList.contains('hidden')) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      state.fcFlipped = !state.fcFlipped;
+      renderFlashcard();
+    } else if (e.key === 'ArrowRight') {
+      nextFlashcard(1);
+    } else if (e.key === 'ArrowLeft') {
+      nextFlashcard(-1);
+    } else if (e.key.toLowerCase() === 's') {
+      const w = state.fcQueue[state.fcIndex];
+      if (w) speakText(w.word, document.getElementById('fcSpeakBtn'));
+    } else if (['1', '2', '3'].includes(e.key)) {
+      const map = { '1': 'unlearned', '2': 'learning', '3': 'mastered' };
+      const w = state.fcQueue[state.fcIndex];
+      if (w) { setWordStatus(w.id, map[e.key]); nextFlashcard(1); }
+    }
+  });
+
+  // Word Bank
+  document.getElementById('bankSearch').addEventListener('input', (e) => {
+    state.bankFilter.search = e.target.value;
+    state.bankPage = 1;
+    renderBank();
+  });
+  ['bankCategory', 'bankUnit', 'bankStatus'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      state.bankFilter.cat = document.getElementById('bankCategory').value;
+      state.bankFilter.unit = document.getElementById('bankUnit').value;
+      state.bankFilter.status = document.getElementById('bankStatus').value;
+      state.bankPage = 1;
+      renderBank();
+    });
+  });
+  document.getElementById('bankPrevPage').addEventListener('click', () => {
+    if (state.bankPage > 1) { state.bankPage--; renderBank(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+  document.getElementById('bankNextPage').addEventListener('click', () => {
+    state.bankPage++; renderBank(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  document.getElementById('bankList').addEventListener('click', (e) => {
+    const speakBtn = e.target.closest('[data-speak-word]');
+    if (speakBtn) {
+      const w = WORDS.find(x => x.id === Number(speakBtn.dataset.speakWord));
+      if (w) speakText(w.word, speakBtn);
+      return;
+    }
+    const starBtn = e.target.closest('[data-star-word]');
+    if (starBtn) {
+      toggleWordStar(Number(starBtn.dataset.starWord));
+      renderBank();
+      return;
+    }
+    const openEl = e.target.closest('[data-open-word]');
+    if (openEl) openWordModal(Number(openEl.dataset.openWord));
+  });
+
+  // Modal
+  document.getElementById('mCloseBtn').addEventListener('click', () => {
+    document.getElementById('wordModal').classList.add('hidden');
+  });
+  document.getElementById('wordModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+  });
+  document.getElementById('mSpeakBtn').addEventListener('click', () => {
+    const w = WORDS.find(x => x.id === state.modalWordId);
+    if (w) speakText(w.word);
+  });
+  document.getElementById('mStarBtn').addEventListener('click', () => {
+    if (!state.modalWordId) return;
+    const starred = toggleWordStar(state.modalWordId);
+    document.getElementById('mStarBtn').textContent = starred ? '★ 已收藏' : '☆ 收藏单词';
+    if (state.tab === 'bank') renderBank();
+  });
+  document.querySelectorAll('.m-rate-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!state.modalWordId) return;
+      setWordStatus(state.modalWordId, btn.dataset.mrate);
+      document.getElementById('wordModal').classList.add('hidden');
+      if (state.tab === 'bank') renderBank();
+      showToast('已更新单词状态');
+    });
+  });
+
+  // Quiz
+  document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+  document.getElementById('qSpeakBtn').addEventListener('click', () => {
+    const q = state.quiz.questions[state.quiz.index];
+    if (q) speakText(q.target.word);
+  });
+  document.getElementById('qOptions').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-qopt]');
+    if (btn) handleQuizAnswer(Number(btn.dataset.qopt));
+  });
+  document.getElementById('qNextBtn').addEventListener('click', () => {
+    if (state.quiz.index + 1 >= state.quiz.questions.length) {
+      showQuizResult();
+    } else {
+      state.quiz.index++;
+      renderQuizQuestion();
+    }
+  });
+  document.getElementById('qrRetryBtn').addEventListener('click', startQuiz);
+  document.getElementById('qrBackBtn').addEventListener('click', () => {
+    document.getElementById('quizResult').classList.add('hidden');
+    document.getElementById('quizSetup').classList.remove('hidden');
+  });
+
+  // Export & Reset
+  document.getElementById('exportCsvBtn').addEventListener('click', () => downloadCsv(false));
+  document.getElementById('exportStarredBtn').addEventListener('click', () => downloadCsv(true));
+  document.getElementById('resetProgressBtn').addEventListener('click', () => {
+    document.getElementById('confirmModal').classList.remove('hidden');
+  });
+  document.getElementById('cancelResetBtn').addEventListener('click', () => {
+    document.getElementById('confirmModal').classList.add('hidden');
+  });
+  document.getElementById('confirmResetBtn').addEventListener('click', () => {
+    state.progress = {};
+    saveProgress();
+    updateHeaderStats();
+    renderStats();
+    buildFcQueue(false);
+    document.getElementById('confirmModal').classList.add('hidden');
+    showToast('学习进度已重置');
+  });
+});
+</script>
+</body>
+</html>
